@@ -89,7 +89,9 @@
     "oauthApplicationItemId": "2f033678adf545aa927596b5b51865eb",
     "oauthClientId": "4p7jlBfp5hNmsZsZ",
     "oauthRedirectUri": "https://jonpedder.github.io/special-event-monitoring/",
-    "dataAccess": "private_portal_sign_in_required"
+    "dataAccess": "private_portal_sign_in_required",
+    "refreshIntervalMinutes": 5,
+    "refreshBehavior": "visible_tab_refreshes_source_audit_map_and_kpis_playback_safe"
   },
   "sharing": "private_or_workflow_groups_only",
   "warnings": [

@@ -38,6 +38,7 @@
     "postStatus": "poststatus",
     "staffAgency": "staffagency"
   },
+  "refreshIntervalMinutes": 5,
   "playback": {
     "defaultWindowHours": 24,
     "stepMinutes": 5,

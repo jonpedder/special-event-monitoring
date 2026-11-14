@@ -70,7 +70,9 @@ The `QA-AUDIT-20261114` test set contains 50 current source features near Sacram
 
 ## Configure and deploy the AAR app
 
-`config.json` is set to the target portal, source item/layer, audit layer URL, and browser OAuth client ID. GitHub Pages serves the folder over HTTPS. The OAuth app permits the exact Pages URL as its redirect URI; never embed a token or client secret.
+`config.json` is set to the target portal, source item/layer, audit layer URL, browser OAuth client ID, and a five-minute refresh interval. GitHub Pages serves the folder over HTTPS. The OAuth app permits the exact Pages URL as its redirect URI; never embed a token or client secret.
+
+While the page is visible and playback is stopped, the application refreshes both feature layers, advances the rolling time window, reloads audit history, redraws the map, and recalculates KPIs every five minutes. A hidden tab refreshes immediately when it becomes visible after missing an interval.
 
 Release verification should cover authorization failures, event filters, timezone boundaries, long audit histories, empty states, playback, trail selection, KPI reconciliation, CSV encoding, and responsive layout.
 

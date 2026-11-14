@@ -12,6 +12,8 @@ const state = {
   Graphic: null,
   auditRows: [],
   timer: null,
+  autoRefreshTimer: null,
+  lastAutoRefresh: 0,
   requestToken: 0
 };
 
@@ -242,6 +244,7 @@ async function initialize() {
   const sourceExtent = await state.layers.source.queryExtent({ where: "1=1" }).catch(() => null);
   if (sourceExtent?.extent) state.view.goTo(sourceExtent.extent.expand(1.3)).catch(() => {});
   else if (state.layers.source.fullExtent) state.view.goTo(state.layers.source.fullExtent.expand(1.15)).catch(() => {});
+  startAutoRefresh();
 }
 
 async function loadEvents() {
@@ -278,7 +281,8 @@ async function refresh() {
     const movement = updateKpis(from, to);
     ui.timeSlider.value = "100";
     const warning = movement.unavailable ? ` ${movement.unavailable} movement distances could not be calculated for the audit spatial reference.` : "";
-    setNotice(`Loaded ${rows.length.toLocaleString()} audit records through the selected end time.${warning}`, movement.unavailable ? "warning" : "success");
+    const cadence = Number(state.config.refreshIntervalMinutes || 5);
+    setNotice(`Loaded ${rows.length.toLocaleString()} audit records through the selected end time.${warning} Auto-refreshes every ${cadence} minutes.`, movement.unavailable ? "warning" : "success");
   } catch (error) {
     console.error(error);
     setNotice(error.message || String(error), "danger");
@@ -350,6 +354,31 @@ function exportCsv() {
   link.download = `pedder-audit-${new Date().toISOString().replaceAll(":", "-")}.csv`;
   link.click();
   URL.revokeObjectURL(link.href);
+}
+
+async function autoRefresh() {
+  if (document.visibilityState !== "visible" || state.timer || ui.applyButton.loading) return;
+  const cadenceMs = Math.max(1, Number(state.config.refreshIntervalMinutes || 5)) * 60000;
+  const { from, to } = windowBounds();
+  const now = new Date();
+  const duration = Math.max(60000, to.getTime() - from.getTime());
+  ui.toTime.value = localInputValue(now);
+  ui.fromTime.value = localInputValue(new Date(now.getTime() - duration));
+  state.layers.source.refresh();
+  state.layers.audit.refresh();
+  await refresh();
+  state.lastAutoRefresh = Date.now();
+  return cadenceMs;
+}
+
+function startAutoRefresh() {
+  const cadenceMs = Math.max(1, Number(state.config.refreshIntervalMinutes || 5)) * 60000;
+  if (state.autoRefreshTimer) window.clearInterval(state.autoRefreshTimer);
+  state.lastAutoRefresh = Date.now();
+  state.autoRefreshTimer = window.setInterval(autoRefresh, cadenceMs);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && Date.now() - state.lastAutoRefresh >= cadenceMs) autoRefresh();
+  });
 }
 
 function bindEvents() {

@@ -215,7 +215,8 @@
       },
       "title": "Special Event Asset Audit Log",
       "url": "https://services6.arcgis.com/SdBwj74JF24xKhpX/arcgis/rest/services/Special_Event_Asset_Audit_Log_20261030_144101/FeatureServer/0",
-      "visibility": true
+      "visibility": true,
+      "refreshInterval": 5
     },
     {
       "id": "current_staffing",
@@ -293,7 +294,8 @@
           }
         ]
       },
-      "layerType": "ArcGISFeatureLayer"
+      "layerType": "ArcGISFeatureLayer",
+      "refreshInterval": 5
     }
   ],
   "spatialReference": {
