@@ -32,7 +32,22 @@
     "diagramStatus": "enhanced_active_2026-11-14",
     "automationStatus": "notebook_payload_driven_with_durable_retry_reconciliation",
     "verificationStatus": "synthetic_major_move_and_delete_jobs_10_of_10_closed",
-    "webhookStatus": "connections_created_updates_and_deletes_run_as_JonPSO_notebook_drives_step_completion",
+    "webhookStatus": "connections_created_features_edited_updates_and_deletes_run_as_JonPSO_notebook_drives_step_completion",
+    "webhookConnections": [
+      {
+        "name": "EventStaffing Adds",
+        "triggerEvent": "FeaturesEdited",
+        "purpose": "captures feature insertions; this ArcGIS Online trigger also includes updates and deletions"
+      },
+      {
+        "name": "EventStaffing Updates",
+        "triggerEvent": "FeaturesUpdated"
+      },
+      {
+        "name": "EventStaffing Deletes",
+        "triggerEvent": "FeaturesDeleted"
+      }
+    ],
     "cleanupTaskReferenceStatus": "stale_inaccessible_reference_removed_2026-11-14"
   },
   "notebook": {
@@ -101,7 +116,7 @@
   "sharing": "private_or_workflow_groups_only",
   "warnings": [
     "The scheduled task and Workflow Manager Run As identity are owned by JonPSO. A dedicated built-in service account requires organization-level account provisioning and credentials that were not available in this session.",
-    "The two Workflow Manager webhook connections remain configured for source updates/deletes, but this ArcGIS Online release cannot attach them to ordinary manual steps. Notebook automation is authoritative."
+    "Three Workflow Manager webhook connections are configured for source insertions/all edits, updates, and deletes, but this ArcGIS Online release cannot attach them to ordinary manual steps. Notebook automation is authoritative."
   ],
   "syntheticTest": {
     "prefix": "QA-AUDIT-20261114",
