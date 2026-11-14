@@ -1,0 +1,75 @@
+:root,
+.calcite-mode-dark {
+  --navy: #003B5C;
+  --bg: #071824;
+  --panel: #0C2231;
+  --panel2: #123247;
+  --gold: #F2A900;
+  --text: #F4F7F9;
+  --muted: #AFC3CF;
+  --border: #28495B;
+  --critical: #D9364F;
+  --high: #F28C28;
+  --medium: #F2C94C;
+  --low: #36B37E;
+  --focus: #8BD3FF;
+  --app-brand: var(--gold);
+  --app-surface: var(--panel);
+  --app-border: var(--border);
+  --app-text-muted: var(--muted);
+  --calcite-color-brand: var(--gold);
+  --calcite-color-brand-hover: #ffc038;
+  --calcite-color-brand-press: #d99600;
+  --calcite-color-foreground-1: var(--panel);
+  --calcite-color-foreground-2: var(--panel2);
+  --calcite-color-foreground-3: #183d53;
+  --calcite-color-background: var(--bg);
+  --calcite-color-text-1: var(--text);
+  --calcite-color-text-2: var(--muted);
+  --calcite-color-text-3: #8ca8b7;
+  --calcite-color-border-1: var(--border);
+  --calcite-color-border-2: #1c3c4e;
+  --calcite-color-border-input: #456779;
+  --calcite-color-focus: var(--focus);
+  --calcite-color-status-danger: var(--critical);
+  --calcite-color-status-warning: var(--medium);
+  --calcite-color-status-success: var(--low);
+}
+* { box-sizing: border-box; }
+html, body, calcite-shell { width: 100%; height: 100%; margin: 0; }
+body { font-family: Arial, "Helvetica Neue", sans-serif; color: var(--text); background: var(--bg); overflow: hidden; }
+calcite-navigation { --calcite-color-foreground-1: var(--navy); border-bottom: 2px solid var(--gold); background: linear-gradient(100deg, #002f49, var(--navy) 58%, #0c2231); }
+calcite-navigation-logo { --calcite-color-text-1: var(--text); --calcite-color-text-2: var(--muted); }
+calcite-shell-panel { border-color: var(--border); background: var(--panel); }
+calcite-panel { --calcite-color-foreground-1: var(--panel); --calcite-color-border-3: var(--border); }
+.workspace { display: grid; grid-template-rows: auto 1fr; min-width: 0; height: 100%; background: radial-gradient(circle at 48% -20%, #123247 0, var(--bg) 42%); }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(8rem, 1fr)); gap: .55rem; padding: .65rem .75rem; }
+.kpi-grid article { position: relative; min-width: 0; background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px solid var(--border); border-top: 2px solid var(--gold); border-radius: 2px; padding: .62rem .85rem; box-shadow: 0 8px 20px rgb(0 0 0 / 18%); }
+.kpi-grid span { display: block; color: var(--muted); font-size: .68rem; font-weight: 700; letter-spacing: .095em; line-height: 1.3; text-transform: uppercase; }
+.kpi-grid strong { display: block; margin-top: .18rem; color: var(--text); font-size: 1.45rem; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.map-card { min-height: 0; padding: 0 .75rem .75rem; }
+#viewDiv { width: 100%; height: 100%; min-height: 24rem; border: 1px solid var(--border); box-shadow: inset 0 0 0 1px rgb(242 169 0 / 10%); }
+.panel-content { display: grid; gap: .7rem; padding: .85rem; }
+.date-grid { display: grid; grid-template-columns: 1fr; gap: .45rem; }
+.button-row { display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; }
+.native-input { box-sizing: border-box; width: 100%; min-height: 2rem; border: 1px solid var(--calcite-color-border-input); border-radius: 1px; padding: .35rem .5rem; background: var(--panel2); color: var(--text); color-scheme: dark; }
+.native-input:focus-visible, input:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+#timeSlider { width: 100%; accent-color: var(--gold); }
+#playbackLabel, .muted { color: var(--muted); font-size: .84rem; }
+#assetSummary { border-bottom: 1px solid var(--border); }
+calcite-list-item { --calcite-color-foreground-1: var(--panel); --calcite-color-foreground-2: var(--panel2); }
+calcite-list-item time { color: var(--muted); font-size: .72rem; font-variant-numeric: tabular-nums; }
+calcite-button:not([appearance="outline"]) { --calcite-color-brand: var(--gold); --calcite-color-text-inverse: #071824; font-weight: 700; }
+calcite-button[appearance="outline"] { --calcite-color-brand: var(--gold); }
+.esri-ui .esri-widget, .esri-ui .esri-widget--button { background: var(--panel); color: var(--text); }
+.esri-ui .esri-widget--button:hover { background: var(--panel2); color: var(--gold); }
+@media (max-width: 900px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  calcite-shell-panel[slot="panel-end"] { display: none; }
+}
+@media (max-width: 560px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; gap: .4rem; padding: .5rem; }
+  .kpi-grid article { padding: .5rem .6rem; }
+  .kpi-grid strong { font-size: 1.2rem; }
+  .map-card { padding: 0 .5rem .5rem; }
+}

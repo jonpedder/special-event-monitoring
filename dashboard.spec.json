@@ -1,0 +1,246 @@
+{
+  "$comment": "Native ArcGIS Dashboard deployment spec for the Special Event Asset Audit Log. Compose and validate locally with dash-compose.mjs; do not publish from this spec-generation step.",
+  "portalUrl": "{ARCGIS_PORTAL_URL}",
+  "tags": [
+    "Special Events",
+    "Asset Audit",
+    "ArcGIS Dashboards"
+  ],
+  "webMap": {
+    "title": "Special Events Audit Dashboard Map",
+    "serviceItemId": "9fb69f32b67242e8a5ba093b0bfab9ae",
+    "serviceUrl": "https://services6.arcgis.com/SdBwj74JF24xKhpX/arcgis/rest/services/Special_Event_Asset_Audit_Log_20261030_144101/FeatureServer",
+    "layers": [
+      {
+        "id": "audit_log",
+        "layerId": 0,
+        "title": "Special Event Asset Audit Log",
+        "visible": true,
+        "renderer": {
+          "field": "ChangeType",
+          "defaultLabel": "Other",
+          "values": [
+            {
+              "value": "ADD",
+              "label": "Add",
+              "color": "#2E7D32"
+            },
+            {
+              "value": "UPDATE",
+              "label": "Update",
+              "color": "#1976D2"
+            },
+            {
+              "value": "DELETE",
+              "label": "Delete",
+              "color": "#C62828"
+            }
+          ]
+        },
+        "popup": {
+          "title": "{ChangeType}: {UnitID}",
+          "fields": [
+            ["EventID", "Event ID"],
+            ["UnitID", "Unit ID"],
+            ["EventAssetID", "Event Asset ID"],
+            ["UnitLocation", "Unit Location"],
+            ["UnitType", "Unit Type"],
+            ["ChangeType", "Change Type"],
+            ["ChangeDateTime", "Change Date/Time"],
+            ["EditorUser", "Editor"],
+            ["ProcessedDateTime", "Processed Date/Time"],
+            ["IsLastKnown", "Last Known"]
+          ]
+        }
+      }
+    ],
+    "tables": []
+  },
+  "fields": {
+    "audit_log": [
+      "OBJECTID",
+      "GlobalID",
+      "SourceObjectID",
+      "SourceGlobalID",
+      "EventID",
+      "UnitID",
+      "EventAssetID",
+      "UnitLocation",
+      "UnitType",
+      "ChangeType",
+      "ChangeDateTime",
+      "EditorUser",
+      "ProcessedDateTime",
+      "DeliveryKey",
+      "SourceLayerURL",
+      "IsLastKnown"
+    ]
+  },
+  "dashboards": [
+    {
+      "key": "special-events-audit",
+      "title": "Special Events Audit Dashboard",
+      "subtitle": "Asset audit activity by event, unit type, change type, and time",
+      "selectors": [
+        {
+          "key": "sel-event",
+          "label": "Event ID",
+          "layer": "audit_log",
+          "field": "EventID"
+        },
+        {
+          "key": "sel-unit-type",
+          "label": "Unit Type",
+          "layer": "audit_log",
+          "field": "UnitType"
+        },
+        {
+          "key": "sel-change-type",
+          "label": "Change Type",
+          "layer": "audit_log",
+          "field": "ChangeType"
+        }
+      ],
+      "widgets": [
+        {
+          "kind": "indicator",
+          "key": "ind-total",
+          "label": "Total changes",
+          "layer": "audit_log",
+          "field": "OBJECTID",
+          "stat": "count"
+        },
+        {
+          "kind": "indicator",
+          "key": "ind-adds",
+          "label": "Adds",
+          "layer": "audit_log",
+          "field": "OBJECTID",
+          "stat": "count",
+          "where": [
+            ["ChangeType", "string", "equal", "ADD"]
+          ],
+          "color": "#2E7D32"
+        },
+        {
+          "kind": "indicator",
+          "key": "ind-updates",
+          "label": "Updates",
+          "layer": "audit_log",
+          "field": "OBJECTID",
+          "stat": "count",
+          "where": [
+            ["ChangeType", "string", "equal", "UPDATE"]
+          ],
+          "color": "#1976D2"
+        },
+        {
+          "kind": "indicator",
+          "key": "ind-deletes",
+          "label": "Deletes",
+          "layer": "audit_log",
+          "field": "OBJECTID",
+          "stat": "count",
+          "where": [
+            ["ChangeType", "string", "equal", "DELETE"]
+          ],
+          "color": "#C62828"
+        },
+        {
+          "kind": "map",
+          "key": "map"
+        },
+        {
+          "kind": "pie",
+          "key": "pie-change-type",
+          "title": "Changes by type",
+          "layer": "audit_log",
+          "category": "ChangeType",
+          "field": "OBJECTID",
+          "colors": [
+            {
+              "value": "ADD",
+              "label": "Add",
+              "color": "#2E7D32"
+            },
+            {
+              "value": "UPDATE",
+              "label": "Update",
+              "color": "#1976D2"
+            },
+            {
+              "value": "DELETE",
+              "label": "Delete",
+              "color": "#C62828"
+            }
+          ]
+        },
+        {
+          "kind": "serial",
+          "key": "chart-change-type",
+          "title": "Change count by type",
+          "layer": "audit_log",
+          "category": "ChangeType",
+          "field": "OBJECTID",
+          "stat": "count",
+          "order": "value DESC"
+        },
+        {
+          "kind": "serial",
+          "key": "chart-change-time",
+          "title": "Changes over time",
+          "layer": "audit_log",
+          "category": "ChangeDateTime",
+          "field": "OBJECTID",
+          "stat": "count",
+          "order": "ChangeDateTime ASC",
+          "dateCategory": true
+        },
+        {
+          "kind": "list",
+          "key": "list-latest",
+          "title": "Latest changes",
+          "layer": "audit_log",
+          "order": "ChangeDateTime DESC",
+          "top": 100,
+          "text": "<strong>{ChangeType}</strong> &middot; {ChangeDateTime}<br/>Event {EventID} &middot; Unit {UnitID} ({UnitType})<br/>{UnitLocation} &middot; {EditorUser}"
+        }
+      ],
+      "rows": [
+        {
+          "height": 0.18,
+          "widgets": [
+            "ind-total",
+            "ind-adds",
+            "ind-updates",
+            "ind-deletes"
+          ]
+        },
+        {
+          "height": 0.4,
+          "widgets": [
+            "map",
+            "pie-change-type",
+            "chart-change-type"
+          ],
+          "widths": [
+            0.5,
+            0.25,
+            0.25
+          ]
+        },
+        {
+          "height": 0.42,
+          "widgets": [
+            "chart-change-time",
+            "list-latest"
+          ],
+          "widths": [
+            0.55,
+            0.45
+          ]
+        }
+      ]
+    }
+  ]
+}

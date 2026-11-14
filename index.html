@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Special Event Operations — Pedder</title>
+  <link rel="stylesheet" href="https://js.arcgis.com/5.1/esri/themes/dark/main.css" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="module" src="https://js.arcgis.com/5.1/"></script>
+</head>
+<body class="calcite-mode-light">
+  <calcite-shell>
+    <calcite-navigation slot="header">
+      <calcite-navigation-logo slot="logo" heading="Special Event Operations" description="Pedder asset movement audit"></calcite-navigation-logo>
+      <calcite-action id="refreshAction" slot="content-end" icon="refresh" text="Refresh"></calcite-action>
+    </calcite-navigation>
+
+    <calcite-shell-panel slot="panel-start" position="start" width-scale="m">
+      <calcite-panel heading="Playback controls">
+        <div class="panel-content">
+          <calcite-label>Event
+            <calcite-select id="eventSelect" label="Event"><calcite-option value="">All events</calcite-option></calcite-select>
+          </calcite-label>
+          <div class="date-grid">
+            <calcite-label>From<input id="fromTime" class="native-input" type="datetime-local" /></calcite-label>
+            <calcite-label>To<input id="toTime" class="native-input" type="datetime-local" /></calcite-label>
+          </div>
+          <div class="button-row">
+            <calcite-button id="applyButton" width="full" icon-start="filter">Apply</calcite-button>
+            <calcite-button id="playButton" width="full" appearance="outline" icon-start="play">Play</calcite-button>
+          </div>
+          <calcite-label>Playback time
+            <input id="timeSlider" type="range" min="0" max="100" value="100" />
+          </calcite-label>
+          <output id="playbackLabel" aria-live="polite">—</output>
+          <calcite-button id="exportButton" width="full" appearance="outline" icon-start="download">Export filtered audit CSV</calcite-button>
+          <calcite-notice id="notice" open kind="info" scale="s"><div slot="message">Loading configuration…</div></calcite-notice>
+        </div>
+      </calcite-panel>
+    </calcite-shell-panel>
+
+    <main class="workspace">
+      <section class="kpi-grid" aria-label="Key performance indicators">
+        <article><span>Active assets</span><strong id="kpiAssets">—</strong></article>
+        <article><span>Moves</span><strong id="kpiMoves">—</strong></article>
+        <article><span>Distance</span><strong id="kpiDistance">—</strong></article>
+        <article><span>Deletes</span><strong id="kpiDeletes">—</strong></article>
+      </section>
+      <section class="map-card"><div id="viewDiv" aria-label="Operations map"></div></section>
+    </main>
+
+    <calcite-shell-panel slot="panel-end" position="end" width-scale="m">
+      <calcite-panel heading="Asset detail timeline">
+        <div id="assetSummary" class="panel-content muted">Select a current asset or movement trail.</div>
+        <calcite-list id="timeline" label="Asset audit timeline"></calcite-list>
+      </calcite-panel>
+    </calcite-shell-panel>
+  </calcite-shell>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

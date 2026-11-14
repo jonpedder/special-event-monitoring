@@ -1,0 +1,133 @@
+{
+  "project": "Special Event Operations - Pedder",
+  "portalUrl": "https://publicsafety.maps.arcgis.com",
+  "source": {
+    "eventStaffingItemId": "53d7f0d643a14d1a8de20ca6e687f21a",
+    "layerId": 0
+  },
+  "audit": {
+    "featureServiceItemId": "9fb69f32b67242e8a5ba093b0bfab9ae",
+    "layerUrl": "https://services6.arcgis.com/SdBwj74JF24xKhpX/arcgis/rest/services/Special_Event_Asset_Audit_Log_20261030_144101/FeatureServer/0",
+    "schemaStatus": "live_verified_and_hardened_2026-11-14",
+    "deliveryKeyIndex": {
+      "name": "UX_Audit_DeliveryKey",
+      "unique": true
+    },
+    "wfmDeliveryFields": [
+      "WFMJobID",
+      "WFMStatus",
+      "WFMAttemptCount",
+      "WFMLastError",
+      "WFMCompletedDate",
+      "WFMPayload"
+    ],
+    "businessFieldsEditable": true
+  },
+  "workflowManager": {
+    "itemId": "8c3a1add5d444b089e9d077e3e940962",
+    "diagramId": "Zyg8O_11QZ-cYAp-_4cpxA",
+    "jobTemplateId": "MFgMCmMtTQCNzs3dgSdeRA",
+    "reviewersGroupId": "af81bbfd590d45c28c749cb045ca42de",
+    "supervisorsGroupId": "2c7cdc7318924ef9baea39158cd6f169",
+    "diagramStatus": "enhanced_active_2026-11-14",
+    "automationStatus": "notebook_payload_driven_with_durable_retry_reconciliation",
+    "verificationStatus": "synthetic_major_move_and_delete_jobs_10_of_10_closed",
+    "webhookStatus": "connections_created_updates_and_deletes_run_as_JonPSO_notebook_drives_step_completion",
+    "cleanupTaskReferenceStatus": "stale_inaccessible_reference_removed_2026-11-14"
+  },
+  "notebook": {
+    "itemId": "21aee7d6ee4746d8bfa236acea698148",
+    "title": "Special Event Audit Processor",
+    "correlationPropertiesStatus": "published_and_live_verified_2026-11-14",
+    "workflowAutomationStatus": "fully_automatic_with_durable_audit_delivery_state_and_five_attempt_reconciliation",
+    "scheduleStatus": "active_every_15_minutes",
+    "scheduleTaskId": "68b651cae3a04d738abf445a77014c97",
+    "scheduleCron": "*/15 * * * ?",
+    "scheduleExecutionTimeoutMinutes": 10,
+    "nextScheduledRunUtc": "2026-11-14T19:15:00.000Z",
+    "circuitBreaker": {
+      "maxInferredDeletes": 25,
+      "dropFraction": 0.5,
+      "minPreviouslyActive": 5
+    },
+    "leaseStatus": "deployed_item_id_fallback_and_item_property_lease",
+    "monitoringStatus": "last_run_health_persisted_to_notebook_item_properties",
+    "lastVerifiedRunId": "27e08af1352d4f8e92a31e776bbf57f2",
+    "lastVerifiedRunUtc": "2026-11-14T19:03:18.775Z",
+    "lastVerifiedRunStatus": "SUCCEEDED",
+    "lastVerifiedSummary": {
+      "source_count": 50,
+      "audit_count_before": 80,
+      "audit_adds": 0,
+      "inferred_delete_count": 0,
+      "workflow_failures": []
+    }
+  },
+  "dashboard": {
+    "webMapItemId": "6d26cea81f8e4568aa505920f06e5291",
+    "dashboardItemId": "392ae83e4d734b498d2d62a823cc50c8",
+    "url": "https://publicsafety.maps.arcgis.com/apps/dashboards/392ae83e4d734b498d2d62a823cc50c8",
+    "theme": "ca_security_ops_dark",
+    "basemap": "Dark Gray Canvas",
+    "visualQaStatus": "passed_with_populated_synthetic_data_2026-11-14",
+    "verifiedCounts": {
+      "total": 80,
+      "adds": 55,
+      "updates": 20,
+      "deletes": 5
+    },
+    "mapStatus": "current_event_staffing_visible_audit_charts_populated"
+  },
+  "aarApplication": {
+    "sourceItemId": "df91a2a76c6e4d98828ac6cdbd0b1d18",
+    "localSingleFile": "aar-app.html",
+    "hostingStatus": "github_pages_public_shell_enabled",
+    "styleStatus": "ca_security_ops_dark_source_and_zip_updated_2026-11-14",
+    "visualQaStatus": "live_private_data_loaded_80_records_kpis_reconciled",
+    "sourceItemStatus": "updated_with_ca_security_ops_package_2026-11-14",
+    "pagesUrl": "https://jonpedder.github.io/special-event-monitoring/",
+    "oauthApplicationItemId": "2f033678adf545aa927596b5b51865eb",
+    "oauthClientId": "4p7jlBfp5hNmsZsZ",
+    "oauthRedirectUri": "https://jonpedder.github.io/special-event-monitoring/",
+    "dataAccess": "private_portal_sign_in_required"
+  },
+  "sharing": "private_or_workflow_groups_only",
+  "warnings": [
+    "The scheduled task and Workflow Manager Run As identity are owned by JonPSO. A dedicated built-in service account requires organization-level account provisioning and credentials that were not available in this session.",
+    "The two Workflow Manager webhook connections remain configured for source updates/deletes, but this ArcGIS Online release cannot attach them to ordinary manual steps. Notebook automation is authoritative."
+  ],
+  "syntheticTest": {
+    "prefix": "QA-AUDIT-20261114",
+    "location": "Sacramento, California",
+    "sourceCountFinal": 50,
+    "auditCounts": {
+      "total": 80,
+      "adds": 55,
+      "updates": 20,
+      "deletes": 5
+    },
+    "tests": {
+      "initialAdds": 50,
+      "attributeOnlyUpdates": 10,
+      "belowThresholdMoves": 5,
+      "majorMoves": 5,
+      "deletes": 5,
+      "readds": 5,
+      "unchangedRetry": "passed_no_new_audit_rows"
+    },
+    "workflowManager": {
+      "qualifyingExceptions": 10,
+      "closed": 10,
+      "failed": 0,
+      "pending": 0,
+      "processing": 0
+    },
+    "status": "passed"
+  },
+  "github": {
+    "repository": "https://github.com/jonpedder/special-event-monitoring",
+    "visibility": "public",
+    "pagesUrl": "https://jonpedder.github.io/special-event-monitoring/",
+    "pagesStatus": "enabled"
+  }
+}

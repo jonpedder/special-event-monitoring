@@ -1,0 +1,8 @@
+# Generated Workflow Manager API snapshots may contain user contact details.
+out/
+
+# Local/editor artifacts
+.DS_Store
+Thumbs.db
+*.tmp
+*.log

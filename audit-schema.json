@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Existing Special Event Asset Audit Log",
+  "description": "Live-verified contract for the existing single-layer append-only audit service used by Special Event Operations - Pedder. This is documentation, not a service-creation payload.",
+  "portalUrl": "https://publicsafety.maps.arcgis.com",
+  "item": {
+    "id": "9fb69f32b67242e8a5ba093b0bfab9ae",
+    "type": "Feature Service",
+    "role": "Existing audit service; do not provision replacement layers or tables"
+  },
+  "service": {
+    "layerUrl": "https://services6.arcgis.com/SdBwj74JF24xKhpX/arcgis/rest/services/Special_Event_Asset_Audit_Log_20261030_144101/FeatureServer/0",
+    "layerId": 0,
+    "geometryRole": "Point geometry records the observed location. DELETE records retain the last-known point.",
+    "storageModel": "Audit events and geometry are appended. IsLastKnown and Workflow Manager delivery fields are administrative state updates; latest asset state is reconstructed by ChangeDateTime and OBJECTID.",
+    "changeTypes": [
+      "ADD",
+      "UPDATE",
+      "DELETE"
+    ],
+    "latestStateRule": "For each SourceObjectID, order by ChangeDateTime then OBJECTID and take the final row. A final DELETE means the source object is inactive.",
+    "idempotencyRule": "DeliveryKey is deterministic and protected by the unique UX_Audit_DeliveryKey service index. The Notebook also queries candidate keys before append.",
+    "fields": [
+      {
+        "name": "OBJECTID",
+        "type": "esriFieldTypeOID",
+        "typeSource": "standard system field",
+        "purpose": "Audit row object identifier"
+      },
+      {
+        "name": "GlobalID",
+        "type": "esriFieldTypeGlobalID",
+        "typeSource": "standard system field",
+        "purpose": "Audit row global identifier"
+      },
+      {
+        "name": "SourceObjectID",
+        "type": "esriFieldTypeInteger",
+        "typeSource": "inferred from name and source system",
+        "purpose": "Stable comparison key for the source row while source ObjectIDs remain stable"
+      },
+      {
+        "name": "SourceGlobalID",
+        "type": "esriFieldTypeGUID",
+        "typeSource": "inferred from name",
+        "purpose": "Preferred durable source identity and provenance"
+      },
+      {
+        "name": "EventID",
+        "type": "esriFieldTypeString",
+        "typeSource": "inferred",
+        "sourceField": "eventid"
+      },
+      {
+        "name": "UnitID",
+        "type": "esriFieldTypeString",
+        "typeSource": "inferred",
+        "sourceField": "unitid"
+      },
+      {
+        "name": "EventAssetID",
+        "type": "esriFieldTypeString",
+        "typeSource": "inferred",
+        "sourceField": "uniqueid"
+      },
+      {
+        "name": "UnitLocation",
+        "type": "esriFieldTypeString",
+        "typeSource": "inferred",
+        "sourceField": "unitloc"
+      },
+      {
+        "name": "UnitType",
+        "type": "esriFieldTypeString",
+        "typeSource": "inferred",
+        "sourceField": "unittype"
+      },
+      {
+        "name": "ChangeType",
+        "type": "esriFieldTypeString",
+        "typeSource": "inferred",
+        "domain": [
+          "ADD",
+          "UPDATE",
+          "DELETE"
+        ]
+      },
+      {
+        "name": "ChangeDateTime",
+        "type": "esriFieldTypeDate",
+        "typeSource": "inferred",
+        "purpose": "Source edit time when available; processing time for DELETE"
+      },
+      {
+        "name": "EditorUser",
+        "type": "esriFieldTypeString",
+        "typeSource": "inferred",
+        "purpose": "Source editor when available, otherwise the current portal username"
+      },
+      {
+        "name": "ProcessedDateTime",
+        "type": "esriFieldTypeDate",
+        "typeSource": "inferred",
+        "purpose": "UTC processing time"
+      },
+      {
+        "name": "DeliveryKey",
+        "type": "esriFieldTypeString",
+        "typeSource": "inferred",
+        "purpose": "Deterministic idempotency and state-signature key"
+      },
+      {
+        "name": "SourceLayerURL",
+        "type": "esriFieldTypeString",
+        "typeSource": "inferred",
+        "purpose": "Source layer provenance URL"
+      },
+      {
+        "name": "IsLastKnown",
+        "type": "esriFieldTypeSmallInteger",
+        "typeSource": "inferred",
+        "purpose": "1 on the most recent audit row for a source object; 0 on superseded rows"
+      },
+      {
+        "name": "WFMJobID",
+        "type": "esriFieldTypeString",
+        "length": 64,
+        "typeSource": "live verified",
+        "purpose": "Workflow Manager job identifier"
+      },
+      {
+        "name": "WFMStatus",
+        "type": "esriFieldTypeString",
+        "length": 32,
+        "typeSource": "live verified",
+        "purpose": "PENDING, PROCESSING, CLOSED, or FAILED"
+      },
+      {
+        "name": "WFMAttemptCount",
+        "type": "esriFieldTypeInteger",
+        "length": null,
+        "typeSource": "live verified",
+        "purpose": "Durable retry attempt count"
+      },
+      {
+        "name": "WFMLastError",
+        "type": "esriFieldTypeString",
+        "length": 2000,
+        "typeSource": "live verified",
+        "purpose": "Most recent Workflow Manager delivery error"
+      },
+      {
+        "name": "WFMCompletedDate",
+        "type": "esriFieldTypeDate",
+        "length": null,
+        "typeSource": "live verified",
+        "purpose": "UTC time the correlated Workflow Manager job closed"
+      },
+      {
+        "name": "WFMPayload",
+        "type": "esriFieldTypeString",
+        "length": 4000,
+        "typeSource": "live verified",
+        "purpose": "Deterministic Notebook payload used for retry and reconciliation"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "UX_Audit_DeliveryKey",
+        "fields": "DeliveryKey",
+        "unique": true,
+        "type": "Attribute"
+      }
+    ]
+  },
+  "source": {
+    "itemId": "53d7f0d643a14d1a8de20ca6e687f21a",
+    "layerId": 0,
+    "knownBusinessFields": [
+      "unitid",
+      "eventid",
+      "uniqueid",
+      "unitloc",
+      "unittype",
+      "poststatus",
+      "staffagency"
+    ],
+    "systemFields": [
+      "ObjectID field discovered at runtime",
+      "GlobalID field discovered at runtime",
+      "editor-tracking fields discovered at runtime"
+    ],
+    "hashingNote": "The notebook hashes all non-system source attributes, including poststatus and staffagency, plus normalized geometry. DeliveryKey carries the resulting state hash because the audit layer has no dedicated attribute-hash field."
+  },
+  "notPresent": [
+    "MovementSegments layer",
+    "AssetSnapshot layer",
+    "IntegrationState table"
+  ],
+  "operationalNotes": [
+    "The AAR app derives trails and point-in-time state client-side from ordered audit point records.",
+    "The Notebook reconstructs state from the latest audit row per SourceObjectID and the state hash embedded in DeliveryKey.",
+    "Source and audit capabilities, fields, editability, Web Mercator spatial references, and the unique DeliveryKey index were live verified on 2026-11-14.",
+    "Workflow Manager delivery state is durable and failed, pending, or processing rows are reconciled for up to five attempts."
+  ]
+}

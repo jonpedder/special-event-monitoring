@@ -1,0 +1,305 @@
+{
+  "authoringApp": "arcgis-dashboards-deploy",
+  "authoringAppVersion": "0.1.0",
+  "baseMap": {
+    "baseMapLayers": [
+      {
+        "id": "dark-gray",
+        "layerType": "VectorTileLayer",
+        "styleUrl": "https://www.arcgis.com/sharing/rest/content/items/c11ce4f7801740b2905eb03ddc963ac8/resources/styles/root.json",
+        "title": "Dark Gray Canvas"
+      }
+    ],
+    "title": "Dark Gray Canvas"
+  },
+  "initialState": {
+    "viewpoint": {
+      "targetGeometry": {
+        "spatialReference": {
+          "wkid": 4326
+        },
+        "xmin": -121.51,
+        "ymin": 38.57,
+        "xmax": -121.48,
+        "ymax": 38.593
+      }
+    }
+  },
+  "operationalLayers": [
+    {
+      "id": "audit_log",
+      "layerDefinition": {
+        "drawingInfo": {
+          "renderer": {
+            "defaultLabel": "Other",
+            "defaultSymbol": {
+              "color": [
+                242,
+                169,
+                0,
+                255
+              ],
+              "outline": {
+                "color": [
+                  242,
+                  169,
+                  0,
+                  255
+                ],
+                "width": 1.5
+              },
+              "size": 14,
+              "style": "esriSMSCircle",
+              "type": "esriSMS"
+            },
+            "field1": "ChangeType",
+            "type": "uniqueValue",
+            "uniqueValueInfos": [
+              {
+                "label": "Add",
+                "symbol": {
+                  "color": [
+                    54,
+                    179,
+                    126,
+                    255
+                  ],
+                  "outline": {
+                    "color": [
+                      242,
+                      169,
+                      0,
+                      255
+                    ],
+                    "width": 1.5
+                  },
+                  "size": 14,
+                  "style": "esriSMSCircle",
+                  "type": "esriSMS"
+                },
+                "value": "ADD"
+              },
+              {
+                "label": "Update",
+                "symbol": {
+                  "color": [
+                    139,
+                    211,
+                    255,
+                    255
+                  ],
+                  "outline": {
+                    "color": [
+                      242,
+                      169,
+                      0,
+                      255
+                    ],
+                    "width": 1.5
+                  },
+                  "size": 14,
+                  "style": "esriSMSCircle",
+                  "type": "esriSMS"
+                },
+                "value": "UPDATE"
+              },
+              {
+                "label": "Delete",
+                "symbol": {
+                  "color": [
+                    217,
+                    54,
+                    79,
+                    255
+                  ],
+                  "outline": {
+                    "color": [
+                      242,
+                      169,
+                      0,
+                      255
+                    ],
+                    "width": 1.5
+                  },
+                  "size": 14,
+                  "style": "esriSMSCircle",
+                  "type": "esriSMS"
+                },
+                "value": "DELETE"
+              }
+            ]
+          }
+        }
+      },
+      "layerType": "ArcGISFeatureLayer",
+      "opacity": 1,
+      "popupInfo": {
+        "fieldInfos": [
+          {
+            "fieldName": "EventID",
+            "label": "Event ID",
+            "visible": true
+          },
+          {
+            "fieldName": "UnitID",
+            "label": "Unit ID",
+            "visible": true
+          },
+          {
+            "fieldName": "EventAssetID",
+            "label": "Event Asset ID",
+            "visible": true
+          },
+          {
+            "fieldName": "UnitLocation",
+            "label": "Unit Location",
+            "visible": true
+          },
+          {
+            "fieldName": "UnitType",
+            "label": "Unit Type",
+            "visible": true
+          },
+          {
+            "fieldName": "ChangeType",
+            "label": "Change Type",
+            "visible": true
+          },
+          {
+            "fieldName": "ChangeDateTime",
+            "label": "Change Date/Time",
+            "visible": true
+          },
+          {
+            "fieldName": "EditorUser",
+            "label": "Editor",
+            "visible": true
+          },
+          {
+            "fieldName": "ProcessedDateTime",
+            "label": "Processed Date/Time",
+            "visible": true
+          },
+          {
+            "fieldName": "IsLastKnown",
+            "label": "Last Known",
+            "visible": true
+          },
+          {
+            "fieldName": "WFMStatus",
+            "label": "WFM Status",
+            "visible": true
+          },
+          {
+            "fieldName": "WFMJobID",
+            "label": "WFM Job ID",
+            "visible": true
+          },
+          {
+            "fieldName": "WFMAttemptCount",
+            "label": "WFM Attempts",
+            "visible": true
+          },
+          {
+            "fieldName": "WFMCompletedDate",
+            "label": "WFM Completed",
+            "visible": true
+          },
+          {
+            "fieldName": "WFMLastError",
+            "label": "WFM Last Error",
+            "visible": true
+          }
+        ],
+        "title": "{ChangeType}: {UnitID}"
+      },
+      "title": "Special Event Asset Audit Log",
+      "url": "https://services6.arcgis.com/SdBwj74JF24xKhpX/arcgis/rest/services/Special_Event_Asset_Audit_Log_20261030_144101/FeatureServer/0",
+      "visibility": true
+    },
+    {
+      "id": "current_staffing",
+      "title": "Current Event Staffing",
+      "url": "https://services6.arcgis.com/SdBwj74JF24xKhpX/arcgis/rest/services/Event_Staffing_a339ec61/FeatureServer/0",
+      "layerDefinition": {
+        "drawingInfo": {
+          "renderer": {
+            "type": "simple",
+            "label": "Current asset",
+            "symbol": {
+              "type": "esriSMS",
+              "style": "esriSMSCircle",
+              "color": [
+                139,
+                211,
+                255,
+                255
+              ],
+              "size": 12,
+              "outline": {
+                "type": "esriSLS",
+                "style": "esriSLSSolid",
+                "color": [
+                  242,
+                  169,
+                  0,
+                  255
+                ],
+                "width": 1.5
+              }
+            }
+          }
+        }
+      },
+      "opacity": 1,
+      "visibility": true,
+      "popupInfo": {
+        "title": "{unitid}: {unittype}",
+        "fieldInfos": [
+          {
+            "fieldName": "eventid",
+            "label": "Event ID",
+            "visible": true
+          },
+          {
+            "fieldName": "unitid",
+            "label": "Unit ID",
+            "visible": true
+          },
+          {
+            "fieldName": "unitloc",
+            "label": "Location",
+            "visible": true
+          },
+          {
+            "fieldName": "unittype",
+            "label": "Unit Type",
+            "visible": true
+          },
+          {
+            "fieldName": "poststatus",
+            "label": "Post Status",
+            "visible": true
+          },
+          {
+            "fieldName": "staffagency",
+            "label": "Agency",
+            "visible": true
+          },
+          {
+            "fieldName": "uniqueid",
+            "label": "Unique ID",
+            "visible": true
+          }
+        ]
+      },
+      "layerType": "ArcGISFeatureLayer"
+    }
+  ],
+  "spatialReference": {
+    "latestWkid": 3857,
+    "wkid": 102100
+  },
+  "tables": [],
+  "version": "2.30"
+}

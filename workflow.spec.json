@@ -1,0 +1,84 @@
+{
+  "$comment": "Offline provisioning spec for arcgis-workflow-manager-deploy. Existing Workflow item: 8c3a1add5d444b089e9d077e3e940962 (set ARCGIS_WORKFLOW_ITEM_ID when planning/applying). Contains no localhost or callback URLs.",
+  "workflowItem": {
+    "title": "Special Events Audit",
+    "description": "Manual review of asset deletes, major movement, outside-event observations, and processing errors for Special Event Operations - Pedder."
+  },
+  "category": "Special Event Operations",
+  "groups": {
+    "reviewers": {
+      "title": "Special Events — Audit Reviewers",
+      "description": "Operations staff who investigate movement-audit exceptions.",
+      "roles": ["Manage Jobs - Basic", "Manage Jobs - Advanced"]
+    },
+    "supervisors": {
+      "title": "Special Events — Audit Supervisors",
+      "description": "Supervisors who approve escalation and closure.",
+      "roles": ["Manage Jobs - Basic"]
+    }
+  },
+  "extendedPropertyTables": [
+    {
+      "tableName": "audit_exception",
+      "tableAlias": "Audit Exception",
+      "relationshipType": "OneToOne",
+      "fields": [
+        { "propertyName": "audit_id", "propertyAlias": "Audit ID", "dataType": "String", "fieldLength": 64, "editable": false },
+        { "propertyName": "asset_id", "propertyAlias": "Asset ID", "dataType": "String", "fieldLength": 128, "editable": false },
+        { "propertyName": "event_id", "propertyAlias": "Event ID", "dataType": "String", "fieldLength": 128, "editable": false },
+        { "propertyName": "exception_type", "propertyAlias": "Exception type", "dataType": "String", "fieldLength": 40, "editable": false, "domain": ["DELETE", "MAJOR_MOVE", "OUTSIDE_EVENT", "PROCESSING_ERROR"] },
+        { "propertyName": "change_time_utc", "propertyAlias": "Change time (UTC)", "dataType": "DateTime", "editable": false },
+        { "propertyName": "distance_m", "propertyAlias": "Distance (m)", "dataType": "Double", "editable": false },
+        { "propertyName": "details", "propertyAlias": "Details", "dataType": "String", "fieldLength": 2000, "editable": false },
+        { "propertyName": "resolution", "propertyAlias": "Resolution", "dataType": "String", "fieldLength": 2000, "editable": true }
+      ]
+    }
+  ],
+  "diagram": {
+    "name": "Special Events Audit Review",
+    "description": "Review an automated audit exception, select the required source-data action, wait for and verify the correction or deletion, document resolution, and close.",
+    "initialStep": "exception-created",
+    "steps": [
+      { "key": "exception-created", "name": "Exception Created", "kind": "startEnd", "at": { "x": 0, "y": 0 }, "prompt": "An audit exception was created by scheduled change tracking." },
+      { "key": "review", "name": "Review Audit Evidence", "kind": "manual", "at": { "x": 220, "y": 0 }, "group": "reviewers", "userRun": true, "prompt": "Review the source asset, snapshots, movement trail, timestamps, event assignment, and processing details." },
+      { "key": "valid", "name": "Valid Exception?", "kind": "question", "at": { "x": 440, "y": 0 }, "group": "reviewers", "question": "Does this exception require corrective action?", "responses": [ { "key": "Yes", "value": 1 }, { "key": "No", "value": 0 } ] },
+      { "key": "escalate", "name": "Supervisor Decision", "kind": "manual", "at": { "x": 660, "y": -120 }, "group": "supervisors", "userRun": true, "prompt": "Review the exception and determine whether the source record must be corrected, removed, or resolved without a source-data change." },
+      { "key": "required-action", "name": "Required Source Action", "kind": "question", "at": { "x": 880, "y": -120 }, "group": "supervisors", "question": "What action is required to resolve this exception?", "responses": [ { "key": "Correct source record", "value": 1 }, { "key": "Delete source record", "value": 2 }, { "key": "No source-data change", "value": 3 } ] },
+      { "key": "wait-correction", "name": "Waiting for Source Correction", "kind": "manual", "at": { "x": 1100, "y": -260 }, "group": "reviewers", "userRun": true, "prompt": "Keep the job at this step until the EventStaffing source record is updated. The EventStaffing Updates webhook connection will release the dependency when configured." },
+      { "key": "verify-correction", "name": "Verify Source Correction", "kind": "manual", "at": { "x": 1320, "y": -260 }, "group": "reviewers", "userRun": true, "prompt": "Confirm the source record contains the requested correction and that the resulting audit event is complete." },
+      { "key": "wait-delete", "name": "Waiting for Asset Deletion", "kind": "manual", "at": { "x": 1100, "y": -40 }, "group": "reviewers", "userRun": true, "prompt": "Keep the job at this step until the EventStaffing source record is deleted. The EventStaffing Deletes webhook connection will release the dependency when configured." },
+      { "key": "verify-delete", "name": "Verify Asset Deletion", "kind": "manual", "at": { "x": 1320, "y": -40 }, "group": "reviewers", "userRun": true, "prompt": "Confirm the source record is absent and that its last-known geometry and delete audit event were retained." },
+      { "key": "resolve", "name": "Document Resolution", "kind": "manual", "at": { "x": 1540, "y": -120 }, "group": "reviewers", "userRun": true, "prompt": "Record the verified resolution, source-data action, dispatch or recovery action, and any follow-up required." },
+      { "key": "dismiss", "name": "Document False Positive", "kind": "manual", "at": { "x": 660, "y": 180 }, "group": "reviewers", "userRun": true, "prompt": "Explain why the exception is expected or a false positive." },
+      { "key": "closed", "name": "Audit Closed", "kind": "startEnd", "at": { "x": 1760, "y": 0 }, "prompt": "Confirm the audit exception is resolved and close the job." }
+    ],
+    "paths": [
+      { "from": "exception-created", "to": "review" },
+      { "from": "review", "to": "valid" },
+      { "from": "valid", "to": "escalate", "answer": 1 },
+      { "from": "valid", "to": "dismiss", "answer": 0 },
+      { "from": "escalate", "to": "required-action" },
+      { "from": "required-action", "to": "wait-correction", "answer": 1 },
+      { "from": "required-action", "to": "wait-delete", "answer": 2 },
+      { "from": "required-action", "to": "resolve", "answer": 3 },
+      { "from": "wait-correction", "to": "verify-correction" },
+      { "from": "verify-correction", "to": "resolve" },
+      { "from": "wait-delete", "to": "verify-delete" },
+      { "from": "verify-delete", "to": "resolve" },
+      { "from": "resolve", "to": "closed" },
+      { "from": "dismiss", "to": "closed" }
+    ]
+  },
+  "jobTemplates": [
+    {
+      "name": "Special Events Audit Exception",
+      "description": "Manual review for delete, major move, outside-event, or processing-error exceptions generated by scheduled processing.",
+      "defaultPriority": "High",
+      "defaultJobName": "SEA_[index]",
+      "defaultJobDuration": 3,
+      "defaultAssignment": { "group": "reviewers" },
+      "extendedPropertyTables": ["audit_exception"],
+      "shareWith": ["reviewers", "supervisors"]
+    }
+  ]
+}
