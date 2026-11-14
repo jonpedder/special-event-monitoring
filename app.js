@@ -253,6 +253,10 @@ async function initialize() {
   state.graphics.positions = new GraphicsLayer({ title: "Audit playback positions" });
   const map = new ArcGISMap({ basemap: "dark-gray-vector", layers: [state.layers.source, state.graphics.trails, state.graphics.positions] });
   state.view = new MapView({ container: "viewDiv", map, center: [146.8, -41.2], zoom: 9, popupEnabled: true });
+  window.__esriView = state.view;
+  window.__esriMap = map;
+  window.__esriLayers = state.layers;
+  window.__app = state;
   await Promise.all([state.view.when(), state.layers.source.load(), state.layers.audit.load()]);
   state.Graphic = Graphic;
 
