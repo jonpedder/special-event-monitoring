@@ -20,7 +20,7 @@ The repository is published with GitHub Pages at:
 
 `https://jonpedder.github.io/special-event-monitoring/`
 
-The page itself and source repository are public. Operational ArcGIS layers remain private and require an authorized Public Safety ArcGIS Online sign-in through OAuth application item `2f033678adf545aa927596b5b51865eb`. No ArcGIS or GitHub token is stored in this repository.
+The page itself and source repository are public. Operational ArcGIS layers remain private and require an authorized Public Safety ArcGIS Online sign-in through OAuth application item `01a2049ba1b34cf6b82408dcf60ae948`. The root page, `index.html`, and `oauth-callback.html` are registered redirect URIs. No ArcGIS or GitHub token is stored in this repository.
 
 ## Contents
 

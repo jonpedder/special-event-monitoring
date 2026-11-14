@@ -219,7 +219,17 @@ async function initialize() {
     $arcgis.import("@arcgis/core/Graphic.js")
   ]);
   esriConfig.portalUrl = state.config.portalUrl;
-  if (state.config.oauthAppId) IdentityManager.registerOAuthInfos([new OAuthInfo({ appId: state.config.oauthAppId, portalUrl: state.config.portalUrl, popup: true })]);
+  if (state.config.oauthAppId) {
+    const popup = !/iPhone|iPad|Android/i.test(navigator.userAgent);
+    IdentityManager.registerOAuthInfos([new OAuthInfo({
+      appId: state.config.oauthAppId,
+      portalUrl: state.config.portalUrl,
+      popup,
+      popupCallbackUrl: state.config.oauthPopupCallbackUrl
+    })]);
+    const sharingUrl = `${state.config.portalUrl}/sharing`;
+    await IdentityManager.checkSignInStatus(sharingUrl).catch(() => IdentityManager.getCredential(sharingUrl));
+  }
 
   state.layers.source = new FeatureLayer({
     portalItem: { id: state.config.source.itemId, portal: { url: state.config.portalUrl } },
