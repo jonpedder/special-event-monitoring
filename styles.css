@@ -43,7 +43,7 @@ calcite-navigation-logo { --calcite-color-text-1: var(--text); --calcite-color-t
 calcite-shell-panel { border-color: var(--border); background: var(--panel); }
 calcite-panel { --calcite-color-foreground-1: var(--panel); --calcite-color-border-3: var(--border); }
 .workspace { display: grid; grid-template-rows: auto 1fr; min-width: 0; height: 100%; background: radial-gradient(circle at 48% -20%, #123247 0, var(--bg) 42%); }
-.kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(8rem, 1fr)); gap: .55rem; padding: .65rem .75rem; }
+.kpi-grid { display: grid; grid-template-columns: repeat(5, minmax(7rem, 1fr)); gap: .55rem; padding: .65rem .75rem; }
 .kpi-grid article { position: relative; min-width: 0; background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px solid var(--border); border-top: 2px solid var(--gold); border-radius: 2px; padding: .62rem .85rem; box-shadow: 0 8px 20px rgb(0 0 0 / 18%); }
 .kpi-grid span { display: block; color: var(--muted); font-size: .68rem; font-weight: 700; letter-spacing: .095em; line-height: 1.3; text-transform: uppercase; }
 .kpi-grid strong { display: block; margin-top: .18rem; color: var(--text); font-size: 1.45rem; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
@@ -56,7 +56,11 @@ calcite-panel { --calcite-color-foreground-1: var(--panel); --calcite-color-bord
 .native-input:focus-visible, input:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 #timeSlider { width: 100%; accent-color: var(--gold); }
 #playbackLabel, .muted { color: var(--muted); font-size: .84rem; }
+.asset-tools { padding-bottom: .45rem; }
+.section-label { color: var(--muted); font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+#assetList { max-height: 35vh; overflow: auto; border-block: 1px solid var(--border); }
 #assetSummary { border-bottom: 1px solid var(--border); }
+#timeline { max-height: 38vh; overflow: auto; }
 calcite-list-item { --calcite-color-foreground-1: var(--panel); --calcite-color-foreground-2: var(--panel2); }
 calcite-list-item time { color: var(--muted); font-size: .72rem; font-variant-numeric: tabular-nums; }
 calcite-button:not([appearance="outline"]) { --calcite-color-brand: var(--gold); --calcite-color-text-inverse: #071824; font-weight: 700; }

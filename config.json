@@ -28,7 +28,12 @@
     "processedTime": "ProcessedDateTime",
     "deliveryKey": "DeliveryKey",
     "sourceLayerUrl": "SourceLayerURL",
-    "isLastKnown": "IsLastKnown"
+    "isLastKnown": "IsLastKnown",
+    "wfmStatus": "WFMStatus",
+    "wfmJobId": "WFMJobID",
+    "wfmAttemptCount": "WFMAttemptCount",
+    "wfmCompletedDate": "WFMCompletedDate",
+    "wfmLastError": "WFMLastError"
   },
   "sourceFields": {
     "unitId": "unitid",

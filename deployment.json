@@ -91,7 +91,9 @@
       "updates": 20,
       "deletes": 5
     },
-    "mapStatus": "current_event_staffing_visible_audit_charts_populated"
+    "mapStatus": "current_event_staffing_visible_audit_charts_populated",
+    "kpiStatus": "total_adds_updates_deletes",
+    "assetWorkflowList": "filter-aware_single-select_zoom_flash_clear-selection-restores-filtered-extent"
   },
   "aarApplication": {
     "sourceItemId": "df91a2a76c6e4d98828ac6cdbd0b1d18",
@@ -111,7 +113,9 @@
       "https://jonpedder.github.io/special-event-monitoring/index.html",
       "https://jonpedder.github.io/special-event-monitoring/oauth-callback.html"
     ],
-    "oauthStatus": "callback_page_and_404_fallback_deployed"
+    "oauthStatus": "callback_page_and_404_fallback_deployed",
+    "kpiStatus": "active_assets_adds_moves_distance_deletes",
+    "assetWorkflowList": "filter-aware_single-select_zoom_timeline_and_return-to-filtered-extent"
   },
   "sharing": "private_or_workflow_groups_only",
   "warnings": [

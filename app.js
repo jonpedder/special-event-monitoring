@@ -1,7 +1,7 @@
 const ui = Object.fromEntries([
   "eventSelect", "fromTime", "toTime", "applyButton", "playButton", "timeSlider",
-  "playbackLabel", "exportButton", "notice", "refreshAction", "timeline", "assetSummary",
-  "kpiAssets", "kpiMoves", "kpiDistance", "kpiDeletes"
+  "playbackLabel", "exportButton", "notice", "refreshAction", "assetList", "timeline", "assetSummary", "resetExtentButton",
+  "kpiAssets", "kpiAdds", "kpiMoves", "kpiDistance", "kpiDeletes"
 ].map((id) => [id, document.getElementById(id)]));
 
 const state = {
@@ -14,7 +14,9 @@ const state = {
   timer: null,
   autoRefreshTimer: null,
   lastAutoRefresh: 0,
-  requestToken: 0
+  requestToken: 0,
+  selectedAssetKey: null,
+  filteredTargets: []
 };
 
 const field = (name) => state.config.fields[name];
@@ -117,6 +119,11 @@ function popupTemplate(title) {
       { fieldName: field("sourceObjectId"), label: "Source ObjectID" },
       { fieldName: field("sourceGlobalId"), label: "Source GlobalID" },
       { fieldName: field("editorUser"), label: "Editor" },
+      { fieldName: field("wfmStatus"), label: "Workflow status" },
+      { fieldName: field("wfmJobId"), label: "Workflow job ID" },
+      { fieldName: field("wfmAttemptCount"), label: "Workflow attempts" },
+      { fieldName: field("wfmCompletedDate"), label: "Workflow completed", format: { dateFormat: "short-date-short-time" } },
+      { fieldName: field("wfmLastError"), label: "Workflow error" },
       { fieldName: field("sourceLayerUrl"), label: "Source layer" }
     ] }]
   };
@@ -159,8 +166,10 @@ function drawAt(cutoff) {
   }
 
   const marker = { type: "simple-marker", color: state.config.playback.positionColor, size: 9, outline: { color: "white", width: 1 } };
+  state.filteredTargets = [];
   for (const feature of latestStateAt(state.auditRows, cutoff).values()) {
     if (String(feature.attributes[field("changeType")] || "").toUpperCase() === "DELETE" || !feature.geometry) continue;
+    state.filteredTargets.push(feature.geometry);
     state.graphics.positions.add(new state.Graphic({
       geometry: feature.geometry,
       attributes: feature.attributes,
@@ -192,11 +201,13 @@ function movementMetrics(rows, from, to) {
 
 function updateKpis(from, to) {
   const inWindow = state.auditRows.filter((f) => rowTime(f) >= from.getTime() && rowTime(f) <= to.getTime());
+  const adds = inWindow.filter((f) => String(f.attributes[field("changeType")] || "").toUpperCase() === "ADD").length;
   const deletes = inWindow.filter((f) => String(f.attributes[field("changeType")] || "").toUpperCase() === "DELETE").length;
   const latest = latestStateAt(state.auditRows, to);
   const active = [...latest.values()].filter((f) => String(f.attributes[field("changeType")] || "").toUpperCase() !== "DELETE").length;
   const movement = movementMetrics(state.auditRows, from, to);
   ui.kpiAssets.textContent = active.toLocaleString();
+  ui.kpiAdds.textContent = adds.toLocaleString();
   ui.kpiMoves.textContent = movement.moves.toLocaleString();
   ui.kpiDistance.textContent = fmtDistance(movement.distance);
   ui.kpiDeletes.textContent = deletes.toLocaleString();
@@ -289,6 +300,7 @@ async function refresh() {
     state.auditRows = rows;
     drawAt(to);
     const movement = updateKpis(from, to);
+    updateAssetList(from, to);
     ui.timeSlider.value = "100";
     const warning = movement.unavailable ? ` ${movement.unavailable} movement distances could not be calculated for the audit spatial reference.` : "";
     const cadence = Number(state.config.refreshIntervalMinutes || 5);
@@ -332,16 +344,69 @@ function stopPlayback() {
   ui.playButton.iconStart = "play";
 }
 
+function workflowText(feature) {
+  const status = feature.attributes[field("wfmStatus")] || "Not required";
+  const jobId = feature.attributes[field("wfmJobId")];
+  return jobId ? `${status} • Job ${jobId}` : String(status);
+}
+
+function resetToFilteredExtent() {
+  if (state.filteredTargets.length) return state.view.goTo(state.filteredTargets, { padding: 70 }).catch(() => {});
+  if (state.layers.source.fullExtent) return state.view.goTo(state.layers.source.fullExtent.expand(1.15)).catch(() => {});
+}
+
+function clearAssetSelection(resetExtent = true) {
+  state.selectedAssetKey = null;
+  for (const item of ui.assetList.querySelectorAll("calcite-list-item")) item.selected = false;
+  ui.assetSummary.textContent = "Select an asset to zoom to it and review its audited workflow.";
+  ui.timeline.replaceChildren();
+  if (resetExtent) resetToFilteredExtent();
+}
+
+function selectAsset(feature, selectedItem = null) {
+  const key = sourceKey(feature);
+  if (!key) return;
+  if (state.selectedAssetKey === key) return clearAssetSelection(true);
+  state.selectedAssetKey = key;
+  for (const item of ui.assetList.querySelectorAll("calcite-list-item")) item.selected = item === selectedItem || item.dataset.assetKey === key;
+  showTimeline(feature);
+  if (feature.geometry) state.view.goTo({ target: feature.geometry, zoom: 16 }, { duration: 500 }).catch(() => {});
+}
+
+function updateAssetList(from, to) {
+  const latest = new Map();
+  for (const feature of state.auditRows) {
+    const time = rowTime(feature);
+    if (time < from.getTime() || time > to.getTime()) continue;
+    const key = sourceKey(feature);
+    if (key) latest.set(key, feature);
+  }
+  const rows = [...latest.values()].sort((a, b) => rowTime(b) - rowTime(a) || rowOid(b) - rowOid(a));
+  ui.assetList.replaceChildren();
+  for (const feature of rows.slice(0, 500)) {
+    const key = sourceKey(feature);
+    const item = document.createElement("calcite-list-item");
+    item.label = `${feature.attributes[field("unitId")] || key} • ${feature.attributes[field("eventId")] || "No event"}`;
+    item.description = `${feature.attributes[field("changeType")] || "CHANGE"} • ${fmtTime(feature.attributes[field("changeTime")])} • ${workflowText(feature)}`;
+    item.value = key;
+    item.dataset.assetKey = key;
+    item.selected = state.selectedAssetKey === key;
+    item.addEventListener("click", () => selectAsset(feature, item));
+    ui.assetList.append(item);
+  }
+  if (state.selectedAssetKey && !latest.has(state.selectedAssetKey)) clearAssetSelection(false);
+}
+
 function showTimeline(feature) {
   const key = sourceKey(feature);
   const unit = feature.attributes[field("unitId")] ?? key;
-  ui.assetSummary.textContent = `Unit ${unit} • source ${key}`;
+  ui.assetSummary.textContent = `Unit ${unit} • source ${key} • ${workflowText(feature)}`;
   ui.timeline.replaceChildren();
   const rows = state.auditRows.filter((row) => sourceKey(row) === key).sort((a, b) => rowTime(b) - rowTime(a) || rowOid(b) - rowOid(a));
   for (const row of rows.slice(0, 200)) {
     const item = document.createElement("calcite-list-item");
     item.label = row.attributes[field("changeType")] || "CHANGE";
-    item.description = `${fmtTime(row.attributes[field("changeTime")])} • ${row.attributes[field("unitLocation")] || "No location label"}`;
+    item.description = `${fmtTime(row.attributes[field("changeTime")])} • ${row.attributes[field("unitLocation")] || "No location label"} • ${workflowText(row)}`;
     item.value = String(row.attributes[field("auditObjectId")] || "");
     ui.timeline.append(item);
   }
@@ -396,11 +461,12 @@ function bindEvents() {
   ui.refreshAction.addEventListener("click", refresh);
   ui.playButton.addEventListener("click", togglePlayback);
   ui.exportButton.addEventListener("click", exportCsv);
+  ui.resetExtentButton.addEventListener("click", () => clearAssetSelection(true));
   ui.timeSlider.addEventListener("input", () => setPlayback(Number(ui.timeSlider.value)));
   state.view.on("click", async (event) => {
     const hit = await state.view.hitTest(event, { include: [state.graphics.positions, state.graphics.trails] });
     const graphic = hit.results.find((result) => result.graphic)?.graphic;
-    if (graphic) showTimeline(graphic);
+    if (graphic) selectAsset(graphic);
   });
 }
 

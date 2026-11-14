@@ -42,6 +42,7 @@
     <main class="workspace">
       <section class="kpi-grid" aria-label="Key performance indicators">
         <article><span>Active assets</span><strong id="kpiAssets">—</strong></article>
+        <article><span>Adds</span><strong id="kpiAdds">—</strong></article>
         <article><span>Moves</span><strong id="kpiMoves">—</strong></article>
         <article><span>Distance</span><strong id="kpiDistance">—</strong></article>
         <article><span>Deletes</span><strong id="kpiDeletes">—</strong></article>
@@ -50,9 +51,14 @@
     </main>
 
     <calcite-shell-panel slot="panel-end" position="end" width-scale="m">
-      <calcite-panel heading="Asset detail timeline">
-        <div id="assetSummary" class="panel-content muted">Select a current asset or movement trail.</div>
-        <calcite-list id="timeline" label="Asset audit timeline"></calcite-list>
+      <calcite-panel heading="Audited assets and workflow">
+        <div class="panel-content asset-tools">
+          <calcite-button id="resetExtentButton" width="full" appearance="outline" icon-start="zoom-out-fixed">Return to filtered extent</calcite-button>
+          <div class="section-label">Filtered assets</div>
+        </div>
+        <calcite-list id="assetList" label="Filtered audited assets" selection-mode="single-persist"></calcite-list>
+        <div id="assetSummary" class="panel-content muted">Select an asset to zoom to it and review its audited workflow.</div>
+        <calcite-list id="timeline" label="Asset audit workflow"></calcite-list>
       </calcite-panel>
     </calcite-shell-panel>
   </calcite-shell>
