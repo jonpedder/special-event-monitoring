@@ -120,7 +120,8 @@
     "kpiStatus": "active_assets_adds_moves_distance_deletes",
     "assetWorkflowList": "filter-aware_single-select_zoom_timeline_and_return-to-filtered-extent",
     "movementDirectionArrows": "origin_gold_destination_cyan_rotated_to_travel_direction",
-    "playbackSpeedControl": "range_0.25x_to_4x_live_timer_update"
+    "playbackSpeedControl": "range_0.25x_to_4x_live_timer_update",
+    "playbackEventNavigation": "auto_zoom_to_triggered_event_geometry_with_12000_minimum_scale"
   },
   "sharing": "private_or_workflow_groups_only",
   "warnings": [

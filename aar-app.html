@@ -207,6 +207,8 @@ const EMBEDDED_CONFIG = Object.freeze({
     "defaultWindowHours": 24,
     "stepMinutes": 5,
     "intervalMs": 750,
+    "eventZoomLevel": 16,
+    "eventExtentMinimumScale": 12000,
     "trailColor": [
       242,
       169,
@@ -252,7 +254,8 @@ const state = {
   lastAutoRefresh: 0,
   requestToken: 0,
   selectedAssetKey: null,
-  filteredTargets: []
+  filteredTargets: [],
+  lastPlaybackCutoff: null
 };
 
 const field = (name) => state.config.fields[name];
@@ -582,10 +585,37 @@ function updatePlaybackLabel(date) {
   ui.playbackLabel.textContent = `Showing reconstructed state at ${fmtTime(date)}`;
 }
 
-function setPlayback(percent) {
+function playbackCutoff(percent) {
   const { from, to } = windowBounds();
-  const cutoff = new Date(from.getTime() + (to.getTime() - from.getTime()) * (percent / 100));
+  return new Date(from.getTime() + (to.getTime() - from.getTime()) * (percent / 100));
+}
+
+function zoomToTriggeredEvents(features) {
+  const geometries = features.map((feature) => feature.geometry).filter(Boolean);
+  if (!geometries.length) return;
+  const duration = Math.max(80, Math.min(350, Number(state.config.playback.intervalMs || 750) * 0.8 / playbackSpeed()));
+  const first = geometries[0];
+  const sameLocation = geometries.every((geometry) => geometry.x === first.x && geometry.y === first.y);
+  const navigation = geometries.length === 1 || sameLocation
+    ? state.view.goTo({ target: first, zoom: Number(state.config.playback.eventZoomLevel || 16) }, { duration })
+    : state.view.goTo(geometries, { padding: 80, duration });
+  navigation.then(() => {
+    const minimumScale = Number(state.config.playback.eventExtentMinimumScale || 12000);
+    if (state.view.scale < minimumScale) return state.view.goTo({ center: state.view.center, scale: minimumScale }, { duration: Math.min(150, duration) });
+  }).catch(() => {});
+}
+
+function setPlayback(percent, { zoomTriggered = false } = {}) {
+  const cutoff = playbackCutoff(percent);
   drawAt(cutoff);
+  if (zoomTriggered && state.lastPlaybackCutoff) {
+    const fromMs = state.lastPlaybackCutoff.getTime();
+    const toMs = cutoff.getTime();
+    const triggered = state.auditRows.filter((feature) => rowTime(feature) > fromMs && rowTime(feature) <= toMs && feature.geometry);
+    zoomToTriggeredEvents(triggered);
+  }
+  if (zoomTriggered) state.lastPlaybackCutoff = cutoff;
+  return cutoff;
 }
 
 function playbackSpeed() {
@@ -601,7 +631,7 @@ function playbackTick() {
   const increment = Math.max(1, 100 * state.config.playback.stepMinutes * 60000 / (to - from));
   const next = Number(ui.timeSlider.value) + increment;
   ui.timeSlider.value = String(Math.min(100, next));
-  setPlayback(Math.min(100, next));
+  setPlayback(Math.min(100, next), { zoomTriggered: true });
   if (next >= 100) stopPlayback();
 }
 
@@ -617,6 +647,7 @@ function togglePlayback() {
     ui.timeSlider.value = "0";
     setPlayback(0);
   }
+  state.lastPlaybackCutoff = playbackCutoff(Number(ui.timeSlider.value));
   ui.playButton.textContent = "Pause";
   ui.playButton.iconStart = "pause";
   startPlaybackTimer();

@@ -49,6 +49,8 @@
     "defaultWindowHours": 24,
     "stepMinutes": 5,
     "intervalMs": 750,
+    "eventZoomLevel": 16,
+    "eventExtentMinimumScale": 12000,
     "trailColor": [242, 169, 0, 0.9],
     "positionColor": [139, 211, 255, 0.95],
     "originArrowColor": [242, 169, 0, 0.98],
