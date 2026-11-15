@@ -1,6 +1,6 @@
 const ui = Object.fromEntries([
-  "eventSelect", "fromTime", "toTime", "applyButton", "playButton", "timeSlider",
-  "playbackLabel", "exportButton", "notice", "refreshAction", "assetList", "timeline", "assetSummary", "resetExtentButton",
+  "eventSelect", "fromTime", "toTime", "applyButton", "playButton", "timeSlider", "speedSlider",
+  "speedLabel", "playbackLabel", "exportButton", "notice", "refreshAction", "assetList", "timeline", "assetSummary", "resetExtentButton",
   "kpiAssets", "kpiAdds", "kpiMoves", "kpiDistance", "kpiDeletes"
 ].map((id) => [id, document.getElementById(id)]));
 
@@ -355,18 +355,38 @@ function setPlayback(percent) {
   drawAt(cutoff);
 }
 
+function playbackSpeed() {
+  return Math.max(0.25, Number(ui.speedSlider.value) || 1);
+}
+
+function updateSpeedLabel() {
+  ui.speedLabel.textContent = `${playbackSpeed().toLocaleString(undefined, { maximumFractionDigits: 2 })}× speed`;
+}
+
+function playbackTick() {
+  const { from, to } = windowBounds();
+  const increment = Math.max(1, 100 * state.config.playback.stepMinutes * 60000 / (to - from));
+  const next = Number(ui.timeSlider.value) + increment;
+  ui.timeSlider.value = String(Math.min(100, next));
+  setPlayback(Math.min(100, next));
+  if (next >= 100) stopPlayback();
+}
+
+function startPlaybackTimer() {
+  if (state.timer) window.clearInterval(state.timer);
+  const delay = Math.max(75, Number(state.config.playback.intervalMs || 750) / playbackSpeed());
+  state.timer = window.setInterval(playbackTick, delay);
+}
+
 function togglePlayback() {
   if (state.timer) return stopPlayback();
+  if (Number(ui.timeSlider.value) >= 100) {
+    ui.timeSlider.value = "0";
+    setPlayback(0);
+  }
   ui.playButton.textContent = "Pause";
   ui.playButton.iconStart = "pause";
-  state.timer = window.setInterval(() => {
-    const { from, to } = windowBounds();
-    const increment = Math.max(1, 100 * state.config.playback.stepMinutes * 60000 / (to - from));
-    const next = Number(ui.timeSlider.value) + increment;
-    ui.timeSlider.value = String(Math.min(100, next));
-    setPlayback(Math.min(100, next));
-    if (next >= 100) stopPlayback();
-  }, state.config.playback.intervalMs);
+  startPlaybackTimer();
 }
 
 function stopPlayback() {
@@ -495,6 +515,11 @@ function bindEvents() {
   ui.exportButton.addEventListener("click", exportCsv);
   ui.resetExtentButton.addEventListener("click", () => clearAssetSelection(true));
   ui.timeSlider.addEventListener("input", () => setPlayback(Number(ui.timeSlider.value)));
+  ui.speedSlider.addEventListener("input", () => {
+    updateSpeedLabel();
+    if (state.timer) startPlaybackTimer();
+  });
+  updateSpeedLabel();
   state.view.on("click", async (event) => {
     const hit = await state.view.hitTest(event, { include: [state.graphics.endpoints, state.graphics.positions, state.graphics.trails] });
     const graphic = hit.results.find((result) => result.graphic)?.graphic;
