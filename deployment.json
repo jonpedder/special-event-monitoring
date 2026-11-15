@@ -82,21 +82,23 @@
     "webMapItemId": "6d26cea81f8e4568aa505920f06e5291",
     "dashboardItemId": "392ae83e4d734b498d2d62a823cc50c8",
     "url": "https://publicsafety.maps.arcgis.com/apps/dashboards/392ae83e4d734b498d2d62a823cc50c8",
-    "theme": "ca_security_ops_dark",
+    "theme": "ca_security_ops_dark_navy_gold",
     "basemap": "Dark Gray Canvas",
-    "visualQaStatus": "passed_with_populated_synthetic_data_2026-11-14",
+    "visualQaStatus": "passed_restyled_and_asset_selection_verified_2026-11-15",
     "verifiedCounts": {
       "total": 80,
       "adds": 55,
       "updates": 20,
       "deletes": 5
     },
-    "mapStatus": "asset_list_selection_zooms_and_filters_audit_points_current_staffing_hidden",
+    "mapStatus": "current_assets_and_audit_points_visible_asset_selection_filters_and_zooms",
     "kpiStatus": "total_adds_updates_deletes",
     "assetWorkflowList": "filter-aware_single-select_zoom_flash_clear-selection-restores-filtered-extent",
     "assetSelectorStatus": "list_element_over_current_staffing_filters_audit_history_via_uniqueid_to_EventAssetID_field_map",
     "auditHistoryStatus": "ordered_history_list_with_workflow_fields_and_record_zoom_flash",
-    "movementLineStatus": "not_configured_requires_derived_polyline_layer"
+    "movementLineStatus": "not_configured_requires_derived_polyline_layer",
+    "layoutStatus": "custom_app_aligned_sidebar_controls_five_kpi_strip_large_map_right_asset_workflow_rail",
+    "filterStatus": "event_time_range_unit_type_change_type"
   },
   "aarApplication": {
     "sourceItemId": "df91a2a76c6e4d98828ac6cdbd0b1d18",
