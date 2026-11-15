@@ -163,5 +163,20 @@
     "visibility": "public",
     "pagesUrl": "https://jonpedder.github.io/special-event-monitoring/",
     "pagesStatus": "enabled"
+  },
+  "application": {
+    "headerStatus": "oauth_signin_authenticated_user_utc_pacific_clocks_workflow_manager_branding",
+    "settingsPage": "https://jonpedder.github.io/special-event-monitoring/settings.html",
+    "settingsStatus": "browser_local_configuration_and_help_how_to_deployed",
+    "settingsKeys": [
+      "defaultWindowHours",
+      "refreshIntervalMinutes",
+      "playbackSpeed",
+      "basemap",
+      "showMovementEndpoints",
+      "autoNavigatePlayback"
+    ],
+    "visualQaStatus": "signin_gate_and_settings_configuration_help_pages_verified_2026-11-15",
+    "latestCommit": "e58907d"
   }
 }
