@@ -91,10 +91,10 @@
       "updates": 20,
       "deletes": 5
     },
-    "mapStatus": "selected_asset_audit_points_only_current_staffing_hidden",
+    "mapStatus": "asset_list_selection_zooms_and_filters_audit_points_current_staffing_hidden",
     "kpiStatus": "total_adds_updates_deletes",
     "assetWorkflowList": "filter-aware_single-select_zoom_flash_clear-selection-restores-filtered-extent",
-    "assetSelectorStatus": "header_asset_selector_filters_audit_history_and_map",
+    "assetSelectorStatus": "list_element_over_current_staffing_filters_audit_history_via_uniqueid_to_EventAssetID_field_map",
     "auditHistoryStatus": "ordered_history_list_with_workflow_fields_and_record_zoom_flash",
     "movementLineStatus": "not_configured_requires_derived_polyline_layer"
   },
