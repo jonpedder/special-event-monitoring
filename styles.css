@@ -56,6 +56,10 @@ calcite-panel { --calcite-color-foreground-1: var(--panel); --calcite-color-bord
 .native-input:focus-visible, input:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 #timeSlider { width: 100%; accent-color: var(--gold); }
 #playbackLabel, .muted { color: var(--muted); font-size: .84rem; }
+.movement-legend { display: flex; flex-wrap: wrap; gap: .8rem; color: var(--muted); font-size: .75rem; }
+.movement-legend b { margin-right: .2rem; text-shadow: 0 0 2px #071824; }
+.arrow-origin { color: var(--gold); }
+.arrow-destination { color: var(--focus); }
 .asset-tools { padding-bottom: .45rem; }
 .section-label { color: var(--muted); font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 #assetList { max-height: 35vh; overflow: auto; border-block: 1px solid var(--border); }

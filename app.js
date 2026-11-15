@@ -95,6 +95,12 @@ function distanceMetres(a, b) {
   return 6371008.8 * 2 * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
+function arrowAngle(from, to) {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  return (Math.atan2(dx, dy) * 180 / Math.PI + 360) % 360;
+}
+
 function latestStateAt(rows, cutoff) {
   const latest = new Map();
   for (const feature of rows) {
@@ -132,6 +138,7 @@ function popupTemplate(title) {
 function drawAt(cutoff) {
   state.graphics.trails.removeAll();
   state.graphics.positions.removeAll();
+  state.graphics.endpoints.removeAll();
   const cutoffMs = cutoff.getTime();
   const byUnit = new Map();
   for (const feature of state.auditRows) {
@@ -154,6 +161,26 @@ function drawAt(cutoff) {
         symbol: trailSymbol,
         popupTemplate: popupTemplate(`Unit {${field("unitId")}} trail`)
       }));
+      const origin = path[0];
+      const originDirection = path.find((point) => point.x !== origin.x || point.y !== origin.y);
+      const destination = path[path.length - 1];
+      const destinationDirection = [...path].reverse().find((point) => point.x !== destination.x || point.y !== destination.y);
+      if (originDirection && destinationDirection) {
+        state.graphics.endpoints.addMany([
+          new state.Graphic({
+            geometry: origin.feature.geometry,
+            attributes: { ...origin.feature.attributes, __unitKey: unitId, __movementEndpoint: "Origin" },
+            symbol: { type: "simple-marker", style: "triangle", color: state.config.playback.originArrowColor, size: 13, angle: arrowAngle(origin, originDirection), outline: { color: "#071824", width: 1.5 } },
+            popupTemplate: popupTemplate(`Movement origin — Unit {${field("unitId")}}`)
+          }),
+          new state.Graphic({
+            geometry: destination.feature.geometry,
+            attributes: { ...destination.feature.attributes, __unitKey: unitId, __movementEndpoint: "Destination" },
+            symbol: { type: "simple-marker", style: "triangle", color: state.config.playback.destinationArrowColor, size: 15, angle: arrowAngle(destinationDirection, destination), outline: { color: "#071824", width: 1.5 } },
+            popupTemplate: popupTemplate(`Movement destination — Unit {${field("unitId")}}`)
+          })
+        ]);
+      }
       path = [];
     };
     for (const feature of rows) {
@@ -251,7 +278,8 @@ async function initialize() {
   state.layers.audit = new FeatureLayer({ url: state.config.audit.layerUrl, title: state.config.audit.title, outFields: ["*"], listMode: "hide" });
   state.graphics.trails = new GraphicsLayer({ title: "Audit trails (client-derived)" });
   state.graphics.positions = new GraphicsLayer({ title: "Audit playback positions" });
-  const map = new ArcGISMap({ basemap: "dark-gray-vector", layers: [state.layers.source, state.graphics.trails, state.graphics.positions] });
+  state.graphics.endpoints = new GraphicsLayer({ title: "Movement origin and destination arrows" });
+  const map = new ArcGISMap({ basemap: "dark-gray-vector", layers: [state.layers.source, state.graphics.trails, state.graphics.positions, state.graphics.endpoints] });
   state.view = new MapView({ container: "viewDiv", map, center: [146.8, -41.2], zoom: 9, popupEnabled: true });
   window.__esriView = state.view;
   window.__esriMap = map;
@@ -468,7 +496,7 @@ function bindEvents() {
   ui.resetExtentButton.addEventListener("click", () => clearAssetSelection(true));
   ui.timeSlider.addEventListener("input", () => setPlayback(Number(ui.timeSlider.value)));
   state.view.on("click", async (event) => {
-    const hit = await state.view.hitTest(event, { include: [state.graphics.positions, state.graphics.trails] });
+    const hit = await state.view.hitTest(event, { include: [state.graphics.endpoints, state.graphics.positions, state.graphics.trails] });
     const graphic = hit.results.find((result) => result.graphic)?.graphic;
     if (graphic) selectAsset(graphic);
   });

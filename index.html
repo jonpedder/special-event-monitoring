@@ -33,6 +33,10 @@
             <input id="timeSlider" type="range" min="0" max="100" value="100" />
           </calcite-label>
           <output id="playbackLabel" aria-live="polite">—</output>
+          <div class="movement-legend" aria-label="Movement arrow legend">
+            <span><b class="arrow-origin">▲</b> Origin</span>
+            <span><b class="arrow-destination">▲</b> Destination</span>
+          </div>
           <calcite-button id="exportButton" width="full" appearance="outline" icon-start="download">Export filtered audit CSV</calcite-button>
           <calcite-notice id="notice" open kind="info" scale="s"><div slot="message">Loading configuration…</div></calcite-notice>
         </div>

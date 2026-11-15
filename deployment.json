@@ -118,7 +118,8 @@
     ],
     "oauthStatus": "callback_page_and_404_fallback_deployed",
     "kpiStatus": "active_assets_adds_moves_distance_deletes",
-    "assetWorkflowList": "filter-aware_single-select_zoom_timeline_and_return-to-filtered-extent"
+    "assetWorkflowList": "filter-aware_single-select_zoom_timeline_and_return-to-filtered-extent",
+    "movementDirectionArrows": "origin_gold_destination_cyan_rotated_to_travel_direction"
   },
   "sharing": "private_or_workflow_groups_only",
   "warnings": [

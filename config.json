@@ -50,6 +50,8 @@
     "stepMinutes": 5,
     "intervalMs": 750,
     "trailColor": [242, 169, 0, 0.9],
-    "positionColor": [139, 211, 255, 0.95]
+    "positionColor": [139, 211, 255, 0.95],
+    "originArrowColor": [242, 169, 0, 0.98],
+    "destinationArrowColor": [139, 211, 255, 0.98]
   }
 }
