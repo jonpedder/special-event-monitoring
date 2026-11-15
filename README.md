@@ -30,7 +30,8 @@ The page itself and source repository are public. Operational ArcGIS layers rema
 | `audit-schema.json` | Documentation for the actual existing audit layer and supplied fields. It is not a service-provisioning payload. |
 | `workflow.spec.json` | Preserved offline Workflow Manager provisioning specification. |
 | `dashboard.spec.json` | Preserved offline Dashboard specification. |
-| `index.html`, `app.js`, `styles.css`, `config.json` | ArcGIS Maps SDK for JavaScript 5.1 + Calcite AAR/playback application. |
+| `index.html`, `app.js`, `styles.css`, `config.json` | ArcGIS Maps SDK for JavaScript 5.1 + Calcite authenticated AAR/playback application. |
+| `settings.html`, `settings.mjs` | Browser-local operational defaults plus the tabbed Help & How-to operator guide. |
 
 ## Audit model
 
@@ -72,7 +73,9 @@ The `QA-AUDIT-20261114` test set contains 50 current source features near Sacram
 
 `config.json` is set to the target portal, source item/layer, audit layer URL, browser OAuth client ID, and a five-minute refresh interval. GitHub Pages serves the folder over HTTPS. The OAuth app permits the exact Pages URL as its redirect URI; never embed a token or client secret.
 
-While the page is visible and playback is stopped, the application refreshes both feature layers, advances the rolling time window, reloads audit history, redraws the map, and recalculates KPIs every five minutes. A hidden tab refreshes immediately when it becomes visible after missing an interval.
+The public shell now uses an explicit ArcGIS sign-in gate, loads and displays the authenticated user's full name and username, provides sign-out, UTC and Pacific clocks, Workflow Manager attribution, and a header link to `settings.html`. The settings page follows the CA Security Ops configuration/help format. It stores browser-local defaults for the audit window, refresh cadence, playback speed, basemap, movement arrows, and playback navigation; it also provides a task-focused Help & How-to guide. These preferences change presentation only and never alter portal content or Workflow Manager data.
+
+While the page is visible and playback is stopped, the application refreshes both feature layers, advances the rolling time window, reloads audit history, redraws the map, and recalculates KPIs at the browser-selected cadence (five minutes by default). A hidden tab refreshes immediately when it becomes visible after missing an interval.
 
 Release verification should cover authorization failures, event filters, timezone boundaries, long audit histories, empty states, playback, trail selection, KPI reconciliation, CSV encoding, and responsive layout.
 

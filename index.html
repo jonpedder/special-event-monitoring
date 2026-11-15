@@ -9,10 +9,33 @@
   <script type="module" src="https://js.arcgis.com/5.1/"></script>
 </head>
 <body class="calcite-mode-dark">
-  <calcite-shell>
-    <calcite-navigation slot="header">
-      <calcite-navigation-logo slot="logo" heading="Special Event Operations" description="Pedder asset movement audit"></calcite-navigation-logo>
-      <calcite-action id="refreshAction" slot="content-end" icon="refresh" text="Refresh"></calcite-action>
+  <section id="authScreen" class="auth-screen" aria-live="polite">
+    <div class="auth-card">
+      <div class="brand-shield" aria-hidden="true"><svg viewBox="0 0 48 56"><path d="M24 3 42 10v15c0 13-8 22-18 28C14 47 6 38 6 25V10Z"/><path d="M16 27h16M24 16v22"/></svg></div>
+      <p class="eyebrow">SPECIAL EVENT MONITORING</p>
+      <h1>Special Event Operations</h1>
+      <p>Sign in with an authorized ArcGIS organizational account to access the Pedder asset movement audit.</p>
+      <div id="authLoading" class="loading-ring" hidden aria-label="Signing in"></div>
+      <calcite-button id="signInButton" width="full" icon-start="sign-in">Sign in with ArcGIS</calcite-button>
+      <p id="authError" class="auth-error" role="alert"></p>
+      <p class="powered-by">Powered by ArcGIS Workflow Manager</p>
+    </div>
+  </section>
+
+  <calcite-shell id="appShell" hidden>
+    <calcite-navigation slot="header" aria-label="Application navigation">
+      <div class="brand-block" slot="logo">
+        <div class="brand-shield" aria-hidden="true"><svg viewBox="0 0 48 56"><path d="M24 3 42 10v15c0 13-8 22-18 28C14 47 6 38 6 25V10Z"/><path d="M16 27h16M24 16v22"/></svg></div>
+        <div><h1 tabindex="-1">Special Event Operations</h1><span>Pedder asset movement audit</span><small>Powered by ArcGIS Workflow Manager</small></div>
+      </div>
+      <div class="header-status" slot="content-end">
+        <div class="system-health"><span class="status-dot"></span><span>Audit monitoring active</span></div>
+        <div class="clocks" aria-label="Current time"><span>UTC <strong id="utcTime">--:--:--</strong></span><span>Pacific <strong id="pacificTime">--:--:--</strong></span></div>
+        <div id="userIdentity" class="user-identity" aria-label="Authenticated ArcGIS user"><strong id="authFullName">Signed-in user</strong><span id="authUsername">Loading username…</span></div>
+        <calcite-action id="refreshAction" icon="refresh" text="Refresh" title="Refresh audit data"></calcite-action>
+        <calcite-action id="settingsAction" icon="gear" text="Settings" title="Settings and how-to"></calcite-action>
+        <calcite-action id="signOutAction" icon="sign-out" text="Sign out" title="Sign out"></calcite-action>
+      </div>
     </calcite-navigation>
 
     <calcite-shell-panel slot="panel-start" position="start" width-scale="m">

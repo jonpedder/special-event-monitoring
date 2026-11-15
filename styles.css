@@ -38,8 +38,35 @@
 * { box-sizing: border-box; }
 html, body, calcite-shell { width: 100%; height: 100%; margin: 0; }
 body { font-family: Arial, "Helvetica Neue", sans-serif; color: var(--text); background: var(--bg); overflow: hidden; }
-calcite-navigation { --calcite-color-foreground-1: var(--navy); border-bottom: 2px solid var(--gold); background: linear-gradient(100deg, #002f49, var(--navy) 58%, #0c2231); }
-calcite-navigation-logo { --calcite-color-text-1: var(--text); --calcite-color-text-2: var(--muted); }
+[hidden] { display: none !important; }
+.auth-screen { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 1rem; background: radial-gradient(circle at 50% 15%, #123247 0, var(--bg) 46%); }
+.auth-card { width: min(28rem, 100%); padding: 2rem; border: 1px solid var(--border); border-top: 3px solid var(--gold); background: linear-gradient(180deg, var(--panel2), var(--panel)); box-shadow: 0 24px 70px rgb(0 0 0 / 45%); text-align: center; }
+.auth-card h1 { margin: .3rem 0 .65rem; font-size: 1.65rem; }
+.auth-card p { color: var(--muted); line-height: 1.5; }
+.auth-card .powered-by { margin: 1.25rem 0 0; color: var(--gold); font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; }
+.auth-error { min-height: 1.3rem; color: #ff9aaa !important; }
+.loading-ring { width: 2rem; height: 2rem; margin: .75rem auto; border: 3px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.eyebrow { margin: 0; color: var(--gold) !important; font-size: .7rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+.brand-shield { display: grid; place-items: center; width: 2.6rem; height: 3rem; flex: 0 0 auto; }
+.brand-shield svg { width: 100%; height: 100%; fill: none; stroke: var(--gold); stroke-width: 2; }
+.auth-card .brand-shield { width: 3.5rem; height: 4rem; margin: 0 auto .35rem; }
+calcite-navigation { min-height: 4.75rem; --calcite-color-foreground-1: var(--navy); border-bottom: 2px solid var(--gold); background: linear-gradient(100deg, #002f49, var(--navy) 58%, #0c2231); }
+.brand-block { display: flex; align-items: center; gap: .7rem; min-width: 22rem; padding: .35rem .75rem; }
+.brand-block h1, .brand-block span, .brand-block small { display: block; }
+.brand-block h1 { margin: 0; color: var(--text); font-size: 1.15rem; letter-spacing: .01em; }
+.brand-block span { margin-top: .12rem; color: var(--muted); font-size: .78rem; }
+.brand-block small { margin-top: .2rem; color: var(--gold); font-size: .6rem; font-weight: 700; letter-spacing: .055em; text-transform: uppercase; }
+.header-status { display: flex; align-items: center; gap: .7rem; padding-right: .35rem; }
+.system-health { display: flex; align-items: center; gap: .4rem; color: var(--muted); font-size: .7rem; white-space: nowrap; }
+.status-dot { width: .48rem; height: .48rem; border-radius: 50%; background: var(--low); box-shadow: 0 0 .6rem rgb(54 179 126 / 70%); }
+.clocks { display: grid; gap: .15rem; min-width: 7.6rem; padding: .35rem .6rem; border-inline: 1px solid var(--border); color: var(--muted); font-size: .63rem; text-transform: uppercase; }
+.clocks span { display: flex; justify-content: space-between; gap: .55rem; }
+.clocks strong { color: var(--text); font-variant-numeric: tabular-nums; }
+.user-identity { display: grid; min-width: 8.5rem; max-width: 13rem; }
+.user-identity strong, .user-identity span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-identity strong { color: var(--text); font-size: .74rem; }
+.user-identity span { color: var(--muted); font-size: .65rem; }
 calcite-shell-panel { border-color: var(--border); background: var(--panel); }
 calcite-panel { --calcite-color-foreground-1: var(--panel); --calcite-color-border-3: var(--border); }
 .workspace { display: grid; grid-template-rows: auto 1fr; min-width: 0; height: 100%; background: radial-gradient(circle at 48% -20%, #123247 0, var(--bg) 42%); }
@@ -72,13 +99,25 @@ calcite-button:not([appearance="outline"]) { --calcite-color-brand: var(--gold);
 calcite-button[appearance="outline"] { --calcite-color-brand: var(--gold); }
 .esri-ui .esri-widget, .esri-ui .esri-widget--button { background: var(--panel); color: var(--text); }
 .esri-ui .esri-widget--button:hover { background: var(--panel2); color: var(--gold); }
+@media (max-width: 1100px) {
+  .system-health, .clocks { display: none; }
+  .brand-block { min-width: 18rem; }
+}
 @media (max-width: 900px) {
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
   calcite-shell-panel[slot="panel-end"] { display: none; }
+  .user-identity { display: none; }
 }
 @media (max-width: 560px) {
+  .brand-block { min-width: 0; padding-inline: .35rem; }
+  .brand-block .brand-shield, .brand-block small { display: none; }
+  .brand-block h1 { font-size: .92rem; }
+  .brand-block span { font-size: .66rem; }
   .kpi-grid { grid-template-columns: 1fr 1fr; gap: .4rem; padding: .5rem; }
   .kpi-grid article { padding: .5rem .6rem; }
   .kpi-grid strong { font-size: 1.2rem; }
   .map-card { padding: 0 .5rem .5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }

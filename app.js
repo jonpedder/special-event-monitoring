@@ -1,11 +1,17 @@
+import { loadSettings } from "./settings.mjs";
+
 const ui = Object.fromEntries([
   "eventSelect", "fromTime", "toTime", "applyButton", "playButton", "timeSlider", "speedSlider",
   "speedLabel", "playbackLabel", "exportButton", "notice", "refreshAction", "assetList", "timeline", "assetSummary", "resetExtentButton",
-  "kpiAssets", "kpiAdds", "kpiMoves", "kpiDistance", "kpiDeletes"
+  "kpiAssets", "kpiAdds", "kpiMoves", "kpiDistance", "kpiDeletes", "authScreen", "authLoading", "signInButton", "authError", "appShell",
+  "authFullName", "authUsername", "userIdentity", "utcTime", "pacificTime", "settingsAction", "signOutAction"
 ].map((id) => [id, document.getElementById(id)]));
 
 const state = {
   config: null,
+  userSettings: loadSettings(),
+  IdentityManager: null,
+  credential: null,
   view: null,
   layers: {},
   graphics: {},
@@ -166,7 +172,7 @@ function drawAt(cutoff) {
       const originDirection = path.find((point) => point.x !== origin.x || point.y !== origin.y);
       const destination = path[path.length - 1];
       const destinationDirection = [...path].reverse().find((point) => point.x !== destination.x || point.y !== destination.y);
-      if (originDirection && destinationDirection) {
+      if (state.userSettings.showMovementEndpoints && originDirection && destinationDirection) {
         state.graphics.endpoints.addMany([
           new state.Graphic({
             geometry: origin.feature.geometry,
@@ -242,15 +248,73 @@ function updateKpis(from, to) {
   return movement;
 }
 
+function updateClocks() {
+  const now = new Date();
+  const options = { hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" };
+  ui.utcTime.textContent = new Intl.DateTimeFormat("en-US", { ...options, timeZone: "UTC" }).format(now);
+  ui.pacificTime.textContent = new Intl.DateTimeFormat("en-US", { ...options, timeZone: "America/Los_Angeles" }).format(now);
+}
+
+function startClocks() {
+  updateClocks();
+  window.setInterval(updateClocks, 1000);
+}
+
+async function loadAuthenticatedUser(Portal) {
+  const username = state.credential?.userId || "Authorized user";
+  ui.authFullName.textContent = username;
+  ui.authUsername.textContent = username;
+  try {
+    const portal = new Portal({ url: state.config.portalUrl, authMode: "immediate" });
+    await portal.load();
+    const user = portal.user;
+    ui.authFullName.textContent = user?.fullName || username;
+    ui.authUsername.textContent = user?.username || username;
+    ui.userIdentity.title = `${user?.fullName || username} (${user?.username || username})`;
+  } catch (error) {
+    console.warn("ArcGIS user profile could not be loaded", error);
+  }
+}
+
+async function requireCredential(IdentityManager, sharingUrl) {
+  try {
+    return await IdentityManager.checkSignInStatus(sharingUrl);
+  } catch {
+    ui.authScreen.hidden = false;
+    ui.appShell.hidden = true;
+    return new Promise((resolve) => {
+      ui.signInButton.addEventListener("click", async () => {
+        ui.authError.textContent = "Signing in…";
+        ui.authScreen.setAttribute("aria-busy", "true");
+        ui.authLoading.hidden = false;
+        ui.signInButton.loading = true;
+        ui.signInButton.disabled = true;
+        try {
+          resolve(await IdentityManager.getCredential(sharingUrl));
+        } catch (error) {
+          console.error(error);
+          ui.authScreen.removeAttribute("aria-busy");
+          ui.authLoading.hidden = true;
+          ui.signInButton.loading = false;
+          ui.signInButton.disabled = false;
+          ui.authError.textContent = "Sign-in failed or this account is not authorized. Please try again.";
+          ui.signInButton.focus();
+        }
+      });
+    });
+  }
+}
+
 async function initialize() {
   state.config = await fetch("./config.json", { cache: "no-store" }).then((response) => {
     if (!response.ok) throw new Error(`config.json failed: HTTP ${response.status}`);
     return response.json();
   });
-  const [esriConfig, OAuthInfo, IdentityManager, ArcGISMap, MapView, FeatureLayer, GraphicsLayer, Graphic] = await Promise.all([
+  const [esriConfig, OAuthInfo, IdentityManager, Portal, ArcGISMap, MapView, FeatureLayer, GraphicsLayer, Graphic] = await Promise.all([
     $arcgis.import("@arcgis/core/config.js"),
     $arcgis.import("@arcgis/core/identity/OAuthInfo.js"),
     $arcgis.import("@arcgis/core/identity/IdentityManager.js"),
+    $arcgis.import("@arcgis/core/portal/Portal.js"),
     $arcgis.import("@arcgis/core/Map.js"),
     $arcgis.import("@arcgis/core/views/MapView.js"),
     $arcgis.import("@arcgis/core/layers/FeatureLayer.js"),
@@ -258,6 +322,7 @@ async function initialize() {
     $arcgis.import("@arcgis/core/Graphic.js")
   ]);
   esriConfig.portalUrl = state.config.portalUrl;
+  state.IdentityManager = IdentityManager;
   if (state.config.oauthAppId) {
     const popup = !/iPhone|iPad|Android/i.test(navigator.userAgent);
     IdentityManager.registerOAuthInfos([new OAuthInfo({
@@ -267,8 +332,19 @@ async function initialize() {
       popupCallbackUrl: state.config.oauthPopupCallbackUrl
     })]);
     const sharingUrl = `${state.config.portalUrl}/sharing`;
-    await IdentityManager.checkSignInStatus(sharingUrl).catch(() => IdentityManager.getCredential(sharingUrl));
+    state.credential = await requireCredential(IdentityManager, sharingUrl);
+    await loadAuthenticatedUser(Portal);
   }
+  ui.authScreen.hidden = true;
+  ui.appShell.hidden = false;
+  startClocks();
+  bindHeaderEvents();
+  document.querySelector(".brand-block h1")?.focus();
+
+  state.config.playback.defaultWindowHours = state.userSettings.defaultWindowHours;
+  state.config.playback.intervalMs = Number(state.config.playback.intervalMs || 750);
+  state.config.refreshIntervalMinutes = state.userSettings.refreshIntervalMinutes;
+  ui.speedSlider.value = String(state.userSettings.playbackSpeed);
 
   state.layers.source = new FeatureLayer({
     portalItem: { id: state.config.source.itemId, portal: { url: state.config.portalUrl } },
@@ -280,7 +356,7 @@ async function initialize() {
   state.graphics.trails = new GraphicsLayer({ title: "Audit trails (client-derived)" });
   state.graphics.positions = new GraphicsLayer({ title: "Audit playback positions" });
   state.graphics.endpoints = new GraphicsLayer({ title: "Movement origin and destination arrows" });
-  const map = new ArcGISMap({ basemap: "dark-gray-vector", layers: [state.layers.source, state.graphics.trails, state.graphics.positions, state.graphics.endpoints] });
+  const map = new ArcGISMap({ basemap: state.userSettings.basemap, layers: [state.layers.source, state.graphics.trails, state.graphics.positions, state.graphics.endpoints] });
   state.view = new MapView({ container: "viewDiv", map, center: [146.8, -41.2], zoom: 9, popupEnabled: true });
   window.__esriView = state.view;
   window.__esriMap = map;
@@ -373,7 +449,7 @@ function zoomToTriggeredEvents(features) {
 function setPlayback(percent, { zoomTriggered = false } = {}) {
   const cutoff = playbackCutoff(percent);
   drawAt(cutoff);
-  if (zoomTriggered && state.lastPlaybackCutoff) {
+  if (zoomTriggered && state.userSettings.autoNavigatePlayback && state.lastPlaybackCutoff) {
     const fromMs = state.lastPlaybackCutoff.getTime();
     const toMs = cutoff.getTime();
     const triggered = state.auditRows.filter((feature) => rowTime(feature) > fromMs && rowTime(feature) <= toMs && feature.geometry);
@@ -537,6 +613,14 @@ function startAutoRefresh() {
   });
 }
 
+function bindHeaderEvents() {
+  ui.settingsAction.addEventListener("click", () => { window.location.href = "./settings.html"; });
+  ui.signOutAction.addEventListener("click", () => {
+    state.IdentityManager?.destroyCredentials();
+    window.location.reload();
+  });
+}
+
 function bindEvents() {
   ui.applyButton.addEventListener("click", refresh);
   ui.refreshAction.addEventListener("click", refresh);
@@ -558,5 +642,14 @@ function bindEvents() {
 
 initialize().catch((error) => {
   console.error(error);
-  setNotice(error.message || String(error), "danger");
+  if (ui.appShell.hidden) {
+    ui.authScreen.hidden = false;
+    ui.authLoading.hidden = true;
+    ui.authScreen.removeAttribute("aria-busy");
+    ui.signInButton.loading = false;
+    ui.signInButton.disabled = false;
+    ui.authError.textContent = `The application could not start: ${error.message || String(error)} Reload the page to try again.`;
+  } else {
+    setNotice(error.message || String(error), "danger");
+  }
 });
