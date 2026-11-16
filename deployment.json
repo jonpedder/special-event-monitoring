@@ -176,8 +176,17 @@
       "showMovementEndpoints"
     ],
     "visualQaStatus": "signin_gate_and_settings_configuration_help_pages_verified_2026-11-15",
-    "latestCommit": "bdbf8b9",
+    "latestCommit": "1da95a3",
     "playbackStatus": "stable_viewpoint_global_or_selected_asset_scope",
-    "singleAssetPlayback": "select_asset_resets_slider_and_replays_only_its_updates_positions_and_trail"
+    "singleAssetPlayback": "select_asset_resets_slider_and_replays_only_its_updates_positions_and_trail",
+    "webMapItemId": "6d26cea81f8e4568aa505920f06e5291",
+    "mapTools": [
+      "zoom",
+      "home",
+      "layers",
+      "basemaps",
+      "bookmarks"
+    ],
+    "bookmarkStatus": "current_staffing_extent_seeded_plus_session_bookmark_add_edit"
   }
 }
