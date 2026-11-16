@@ -15,6 +15,7 @@ const state = {
   view: null,
   layers: {},
   graphics: {},
+  widgets: {},
   Graphic: null,
   auditRows: [],
   timer: null,
@@ -312,16 +313,23 @@ async function initialize() {
     if (!response.ok) throw new Error(`config.json failed: HTTP ${response.status}`);
     return response.json();
   });
-  const [esriConfig, OAuthInfo, IdentityManager, Portal, ArcGISMap, MapView, FeatureLayer, GraphicsLayer, Graphic] = await Promise.all([
+  const [esriConfig, OAuthInfo, IdentityManager, Portal, WebMap, MapView, FeatureLayer, GraphicsLayer, Graphic, Zoom, Home, LayerList, BasemapGallery, Bookmarks, Expand, Bookmark] = await Promise.all([
     $arcgis.import("@arcgis/core/config.js"),
     $arcgis.import("@arcgis/core/identity/OAuthInfo.js"),
     $arcgis.import("@arcgis/core/identity/IdentityManager.js"),
     $arcgis.import("@arcgis/core/portal/Portal.js"),
-    $arcgis.import("@arcgis/core/Map.js"),
+    $arcgis.import("@arcgis/core/WebMap.js"),
     $arcgis.import("@arcgis/core/views/MapView.js"),
     $arcgis.import("@arcgis/core/layers/FeatureLayer.js"),
     $arcgis.import("@arcgis/core/layers/GraphicsLayer.js"),
-    $arcgis.import("@arcgis/core/Graphic.js")
+    $arcgis.import("@arcgis/core/Graphic.js"),
+    $arcgis.import("@arcgis/core/widgets/Zoom.js"),
+    $arcgis.import("@arcgis/core/widgets/Home.js"),
+    $arcgis.import("@arcgis/core/widgets/LayerList.js"),
+    $arcgis.import("@arcgis/core/widgets/BasemapGallery.js"),
+    $arcgis.import("@arcgis/core/widgets/Bookmarks.js"),
+    $arcgis.import("@arcgis/core/widgets/Expand.js"),
+    $arcgis.import("@arcgis/core/webmap/Bookmark.js")
   ]);
   esriConfig.portalUrl = state.config.portalUrl;
   state.IdentityManager = IdentityManager;
@@ -348,18 +356,31 @@ async function initialize() {
   state.config.refreshIntervalMinutes = state.userSettings.refreshIntervalMinutes;
   ui.speedSlider.value = String(state.userSettings.playbackSpeed);
 
-  state.layers.source = new FeatureLayer({
+  const map = new WebMap({ portalItem: { id: state.config.webMapItemId, portal: { url: state.config.portalUrl } } });
+  await map.load();
+  map.basemap = state.userSettings.basemap;
+  state.layers.source = map.findLayerById(state.config.source.webMapLayerId) || new FeatureLayer({
     portalItem: { id: state.config.source.itemId, portal: { url: state.config.portalUrl } },
     layerId: state.config.source.layerId,
     title: state.config.source.title,
     outFields: ["*"]
   });
-  state.layers.audit = new FeatureLayer({ url: state.config.audit.layerUrl, title: state.config.audit.title, outFields: ["*"], listMode: "hide" });
+  state.layers.audit = map.findLayerById(state.config.audit.webMapLayerId) || new FeatureLayer({
+    url: state.config.audit.layerUrl,
+    title: state.config.audit.title,
+    outFields: ["*"]
+  });
+  if (!map.findLayerById(state.config.source.webMapLayerId)) map.add(state.layers.source);
+  if (!map.findLayerById(state.config.audit.webMapLayerId)) map.add(state.layers.audit);
+  state.layers.source.outFields = ["*"];
+  state.layers.audit.outFields = ["*"];
+  state.layers.audit.visible = false;
+  state.layers.audit.listMode = "show";
   state.graphics.trails = new GraphicsLayer({ title: "Audit trails (client-derived)" });
   state.graphics.positions = new GraphicsLayer({ title: "Audit playback positions" });
   state.graphics.endpoints = new GraphicsLayer({ title: "Movement origin and destination arrows" });
-  const map = new ArcGISMap({ basemap: state.userSettings.basemap, layers: [state.layers.source, state.graphics.trails, state.graphics.positions, state.graphics.endpoints] });
-  state.view = new MapView({ container: "viewDiv", map, center: [146.8, -41.2], zoom: 9, popupEnabled: true });
+  map.addMany([state.graphics.trails, state.graphics.positions, state.graphics.endpoints]);
+  state.view = new MapView({ container: "viewDiv", map, popupEnabled: true });
   window.__esriView = state.view;
   window.__esriMap = map;
   window.__esriLayers = state.layers;
@@ -375,8 +396,29 @@ async function initialize() {
   await loadEvents();
   await refresh();
   const sourceExtent = await state.layers.source.queryExtent({ where: "1=1" }).catch(() => null);
-  if (sourceExtent?.extent) state.view.goTo(sourceExtent.extent.expand(1.3)).catch(() => {});
-  else if (state.layers.source.fullExtent) state.view.goTo(state.layers.source.fullExtent.expand(1.15)).catch(() => {});
+  if (sourceExtent?.extent) await state.view.goTo(sourceExtent.extent.expand(1.3)).catch(() => {});
+  else if (state.layers.source.fullExtent) await state.view.goTo(state.layers.source.fullExtent.expand(1.15)).catch(() => {});
+  if (!map.bookmarks.some((bookmark) => bookmark.name === "Current staffing extent")) {
+    map.bookmarks.add(new Bookmark({ name: "Current staffing extent", viewpoint: state.view.viewpoint.clone() }));
+  }
+
+  state.view.ui.remove("zoom");
+  state.widgets.zoom = new Zoom({ view: state.view });
+  state.widgets.home = new Home({ view: state.view, viewpoint: state.view.viewpoint.clone() });
+  state.widgets.layerList = new LayerList({ view: state.view });
+  state.widgets.basemapGallery = new BasemapGallery({ view: state.view });
+  state.widgets.bookmarks = new Bookmarks({
+    view: state.view,
+    visibleElements: { addBookmarkButton: true, editBookmarkButton: true, time: false }
+  });
+  state.widgets.layersExpand = new Expand({ view: state.view, content: state.widgets.layerList, expandIcon: "layers", expandTooltip: "Layers", group: "map-tools" });
+  state.widgets.basemapExpand = new Expand({ view: state.view, content: state.widgets.basemapGallery, expandIcon: "basemap", expandTooltip: "Basemaps", group: "map-tools" });
+  state.widgets.bookmarksExpand = new Expand({ view: state.view, content: state.widgets.bookmarks, expandIcon: "bookmark", expandTooltip: "Bookmarks", group: "map-tools" });
+  state.view.ui.add(state.widgets.zoom, { position: "top-left", index: 0 });
+  state.view.ui.add(state.widgets.home, { position: "top-left", index: 1 });
+  state.view.ui.add(state.widgets.layersExpand, { position: "top-right", index: 0 });
+  state.view.ui.add(state.widgets.basemapExpand, { position: "top-right", index: 1 });
+  state.view.ui.add(state.widgets.bookmarksExpand, { position: "top-right", index: 2 });
   startAutoRefresh();
 }
 

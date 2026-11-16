@@ -11,6 +11,7 @@ This folder contains the deployed Special Events Audit solution source and its r
 | Audit | Item `9fb69f32b67242e8a5ba093b0bfab9ae`, layer `0` |
 | Audit URL | `https://services6.arcgis.com/SdBwj74JF24xKhpX/arcgis/rest/services/Special_Event_Asset_Audit_Log_20261030_144101/FeatureServer/0` |
 | Workflow Manager | Item `8c3a1add5d444b089e9d077e3e940962` |
+| Companion Web Map | Item `6d26cea81f8e4568aa505920f06e5291` |
 
 The design now uses the existing **single audit point layer**. It does not require or reference placeholder `MovementSegments`, `AssetSnapshot`, or `IntegrationState` datasets.
 
@@ -76,6 +77,8 @@ The `QA-AUDIT-20261114` test set contains 50 current source features near Sacram
 The public shell now uses an explicit ArcGIS sign-in gate, loads and displays the authenticated user's full name and username, provides sign-out, UTC and Pacific clocks, Workflow Manager attribution, and a header link to `settings.html`. The settings page follows the CA Security Ops configuration/help format. It stores browser-local defaults for the audit window, refresh cadence, playback speed, basemap, and movement arrows; it also provides a task-focused Help & How-to guide. These preferences change presentation only and never alter portal content or Workflow Manager data.
 
 Playback keeps the operator's current map viewpoint instead of zooming to each triggered update. With no list selection it reconstructs every filtered asset. Selecting an asset resets the time slider and scopes the same player to that asset's ordered updates, position, and growing movement trail; clearing the selection restores all-asset playback.
+
+The map is backed by Web Map `6d26cea81f8e4568aa505920f06e5291` and includes explicit Zoom and Home controls plus collapsible Layers, Basemaps, and Bookmarks tools. The app seeds a Current staffing extent bookmark at startup; additional bookmarks are session-local unless they are later saved to the Web Map through an authorized publishing workflow.
 
 While the page is visible and playback is stopped, the application refreshes both feature layers, advances the rolling time window, reloads audit history, redraws the map, and recalculates KPIs at the browser-selected cadence (five minutes by default). A hidden tab refreshes immediately when it becomes visible after missing an interval.
 

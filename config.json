@@ -2,14 +2,17 @@
   "portalUrl": "https://publicsafety.maps.arcgis.com",
   "oauthAppId": "2eURPxapfMdaZiS7",
   "oauthPopupCallbackUrl": "https://jonpedder.github.io/special-event-monitoring/oauth-callback.html",
+  "webMapItemId": "6d26cea81f8e4568aa505920f06e5291",
   "source": {
     "itemId": "53d7f0d643a14d1a8de20ca6e687f21a",
     "layerId": 0,
+    "webMapLayerId": "current_staffing",
     "title": "Current special-event assets"
   },
   "audit": {
     "itemId": "9fb69f32b67242e8a5ba093b0bfab9ae",
     "layerUrl": "https://services6.arcgis.com/SdBwj74JF24xKhpX/arcgis/rest/services/Special_Event_Asset_Audit_Log_20261030_144101/FeatureServer/0",
+    "webMapLayerId": "audit_log",
     "title": "Special Event Asset Audit Log"
   },
   "fields": {
