@@ -173,10 +173,11 @@
       "refreshIntervalMinutes",
       "playbackSpeed",
       "basemap",
-      "showMovementEndpoints",
-      "autoNavigatePlayback"
+      "showMovementEndpoints"
     ],
     "visualQaStatus": "signin_gate_and_settings_configuration_help_pages_verified_2026-11-15",
-    "latestCommit": "e58907d"
+    "latestCommit": "bdbf8b9",
+    "playbackStatus": "stable_viewpoint_global_or_selected_asset_scope",
+    "singleAssetPlayback": "select_asset_resets_slider_and_replays_only_its_updates_positions_and_trail"
   }
 }
