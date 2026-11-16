@@ -2,7 +2,7 @@ import { loadSettings } from "./settings.mjs";
 
 const ui = Object.fromEntries([
   "eventSelect", "fromTime", "toTime", "applyButton", "playButton", "timeSlider", "speedSlider",
-  "speedLabel", "playbackLabel", "exportButton", "notice", "refreshAction", "assetList", "timeline", "assetSummary", "resetExtentButton",
+  "speedLabel", "playbackLabel", "playbackScope", "exportButton", "notice", "refreshAction", "assetList", "timeline", "assetSummary", "resetExtentButton",
   "kpiAssets", "kpiAdds", "kpiMoves", "kpiDistance", "kpiDeletes", "authScreen", "authLoading", "signInButton", "authError", "appShell",
   "authFullName", "authUsername", "userIdentity", "utcTime", "pacificTime", "settingsAction", "signOutAction"
 ].map((id) => [id, document.getElementById(id)]));
@@ -22,8 +22,8 @@ const state = {
   lastAutoRefresh: 0,
   requestToken: 0,
   selectedAssetKey: null,
-  filteredTargets: [],
-  lastPlaybackCutoff: null
+  originalSourceDefinitionExpression: null,
+  filteredTargets: []
 };
 
 const field = (name) => state.config.fields[name];
@@ -150,6 +150,7 @@ function drawAt(cutoff) {
   const byUnit = new Map();
   for (const feature of state.auditRows) {
     if (rowTime(feature) > cutoffMs) break;
+    if (state.selectedAssetKey && sourceKey(feature) !== state.selectedAssetKey) continue;
     const key = unitKey(feature);
     if (!key) continue;
     if (!byUnit.has(key)) byUnit.set(key, []);
@@ -202,6 +203,7 @@ function drawAt(cutoff) {
   const marker = { type: "simple-marker", color: state.config.playback.positionColor, size: 9, outline: { color: "white", width: 1 } };
   state.filteredTargets = [];
   for (const feature of latestStateAt(state.auditRows, cutoff).values()) {
+    if (state.selectedAssetKey && sourceKey(feature) !== state.selectedAssetKey) continue;
     if (String(feature.attributes[field("changeType")] || "").toUpperCase() === "DELETE" || !feature.geometry) continue;
     state.filteredTargets.push(feature.geometry);
     state.graphics.positions.add(new state.Graphic({
@@ -363,6 +365,7 @@ async function initialize() {
   window.__esriLayers = state.layers;
   window.__app = state;
   await Promise.all([state.view.when(), state.layers.source.load(), state.layers.audit.load()]);
+  state.originalSourceDefinitionExpression = state.layers.source.definitionExpression || null;
   state.Graphic = Graphic;
 
   const now = new Date();
@@ -405,18 +408,20 @@ async function refresh() {
     q.outFields = ["*"];
     q.returnGeometry = true;
     const rows = sortedRows(await queryAll(state.layers.audit, q));
-    if (token !== state.requestToken) return;
+    if (token !== state.requestToken) return false;
     state.auditRows = rows;
+    ui.timeSlider.value = "100";
     drawAt(to);
     const movement = updateKpis(from, to);
     updateAssetList(from, to);
-    ui.timeSlider.value = "100";
     const warning = movement.unavailable ? ` ${movement.unavailable} movement distances could not be calculated for the audit spatial reference.` : "";
     const cadence = Number(state.config.refreshIntervalMinutes || 5);
     setNotice(`Loaded ${rows.length.toLocaleString()} audit records through the selected end time.${warning} Auto-refreshes every ${cadence} minutes.`, movement.unavailable ? "warning" : "success");
+    return true;
   } catch (error) {
     console.error(error);
     setNotice(error.message || String(error), "danger");
+    return false;
   } finally {
     ui.applyButton.loading = false;
   }
@@ -431,31 +436,9 @@ function playbackCutoff(percent) {
   return new Date(from.getTime() + (to.getTime() - from.getTime()) * (percent / 100));
 }
 
-function zoomToTriggeredEvents(features) {
-  const geometries = features.map((feature) => feature.geometry).filter(Boolean);
-  if (!geometries.length) return;
-  const duration = Math.max(80, Math.min(350, Number(state.config.playback.intervalMs || 750) * 0.8 / playbackSpeed()));
-  const first = geometries[0];
-  const sameLocation = geometries.every((geometry) => geometry.x === first.x && geometry.y === first.y);
-  const navigation = geometries.length === 1 || sameLocation
-    ? state.view.goTo({ target: first, zoom: Number(state.config.playback.eventZoomLevel || 16) }, { duration })
-    : state.view.goTo(geometries, { padding: 80, duration });
-  navigation.then(() => {
-    const minimumScale = Number(state.config.playback.eventExtentMinimumScale || 12000);
-    if (state.view.scale < minimumScale) return state.view.goTo({ center: state.view.center, scale: minimumScale }, { duration: Math.min(150, duration) });
-  }).catch(() => {});
-}
-
-function setPlayback(percent, { zoomTriggered = false } = {}) {
+function setPlayback(percent) {
   const cutoff = playbackCutoff(percent);
   drawAt(cutoff);
-  if (zoomTriggered && state.userSettings.autoNavigatePlayback && state.lastPlaybackCutoff) {
-    const fromMs = state.lastPlaybackCutoff.getTime();
-    const toMs = cutoff.getTime();
-    const triggered = state.auditRows.filter((feature) => rowTime(feature) > fromMs && rowTime(feature) <= toMs && feature.geometry);
-    zoomToTriggeredEvents(triggered);
-  }
-  if (zoomTriggered) state.lastPlaybackCutoff = cutoff;
   return cutoff;
 }
 
@@ -467,12 +450,24 @@ function updateSpeedLabel() {
   ui.speedLabel.textContent = `${playbackSpeed().toLocaleString(undefined, { maximumFractionDigits: 2 })}× speed`;
 }
 
+function selectedAssetLabel() {
+  if (!state.selectedAssetKey) return null;
+  const feature = [...state.auditRows].reverse().find((row) => sourceKey(row) === state.selectedAssetKey);
+  return feature?.attributes[field("unitId")] || state.selectedAssetKey;
+}
+
+function updatePlaybackScope() {
+  const label = selectedAssetLabel();
+  ui.playbackScope.textContent = label ? `Playback scope: selected asset ${label}` : "Playback scope: all filtered assets";
+  if (!state.timer) ui.playButton.textContent = label ? "Play selected asset" : "Play all assets";
+}
+
 function playbackTick() {
   const { from, to } = windowBounds();
   const increment = Math.max(1, 100 * state.config.playback.stepMinutes * 60000 / (to - from));
   const next = Number(ui.timeSlider.value) + increment;
   ui.timeSlider.value = String(Math.min(100, next));
-  setPlayback(Math.min(100, next), { zoomTriggered: true });
+  setPlayback(Math.min(100, next));
   if (next >= 100) stopPlayback();
 }
 
@@ -488,7 +483,6 @@ function togglePlayback() {
     ui.timeSlider.value = "0";
     setPlayback(0);
   }
-  state.lastPlaybackCutoff = playbackCutoff(Number(ui.timeSlider.value));
   ui.playButton.textContent = "Pause";
   ui.playButton.iconStart = "pause";
   startPlaybackTimer();
@@ -497,8 +491,8 @@ function togglePlayback() {
 function stopPlayback() {
   if (state.timer) window.clearInterval(state.timer);
   state.timer = null;
-  ui.playButton.textContent = "Play";
   ui.playButton.iconStart = "play";
+  updatePlaybackScope();
 }
 
 function workflowText(feature) {
@@ -513,10 +507,14 @@ function resetToFilteredExtent() {
 }
 
 function clearAssetSelection(resetExtent = true) {
+  stopPlayback();
   state.selectedAssetKey = null;
+  state.layers.source.definitionExpression = state.originalSourceDefinitionExpression;
   for (const item of ui.assetList.querySelectorAll("calcite-list-item")) item.selected = false;
-  ui.assetSummary.textContent = "Select an asset to zoom to it and review its audited workflow.";
+  ui.assetSummary.textContent = "Select an asset to zoom to it and play only its audited updates and movement.";
   ui.timeline.replaceChildren();
+  setPlayback(Number(ui.timeSlider.value));
+  updatePlaybackScope();
   if (resetExtent) resetToFilteredExtent();
 }
 
@@ -524,9 +522,25 @@ function selectAsset(feature, selectedItem = null) {
   const key = sourceKey(feature);
   if (!key) return;
   if (state.selectedAssetKey === key) return clearAssetSelection(true);
+  stopPlayback();
   state.selectedAssetKey = key;
+  const rawSourceObjectId = feature.attributes[field("sourceObjectId")];
+  const sourceObjectId = rawSourceObjectId == null || rawSourceObjectId === "" ? null : Number(rawSourceObjectId);
+  const sourceGlobalId = feature.attributes[field("sourceGlobalId")];
+  let selectedSourceClause = "1=0";
+  if (sourceObjectId != null && Number.isFinite(sourceObjectId)) {
+    selectedSourceClause = `${state.layers.source.objectIdField} = ${sourceObjectId}`;
+  } else if (sourceGlobalId && state.layers.source.globalIdField) {
+    selectedSourceClause = `${state.layers.source.globalIdField} = '${escapeSql(sourceGlobalId)}'`;
+  }
+  state.layers.source.definitionExpression = state.originalSourceDefinitionExpression
+    ? `(${state.originalSourceDefinitionExpression}) AND (${selectedSourceClause})`
+    : selectedSourceClause;
   for (const item of ui.assetList.querySelectorAll("calcite-list-item")) item.selected = item === selectedItem || item.dataset.assetKey === key;
   showTimeline(feature);
+  ui.timeSlider.value = "0";
+  setPlayback(0);
+  updatePlaybackScope();
   if (feature.geometry) state.view.goTo({ target: feature.geometry, zoom: 16 }, { duration: 500 }).catch(() => {});
 }
 
@@ -557,7 +571,7 @@ function updateAssetList(from, to) {
 function showTimeline(feature) {
   const key = sourceKey(feature);
   const unit = feature.attributes[field("unitId")] ?? key;
-  ui.assetSummary.textContent = `Unit ${unit} • source ${key} • ${workflowText(feature)}`;
+  ui.assetSummary.textContent = `Playback scoped to Unit ${unit} • source ${key} • ${workflowText(feature)}`;
   ui.timeline.replaceChildren();
   const rows = state.auditRows.filter((row) => sourceKey(row) === key).sort((a, b) => rowTime(b) - rowTime(a) || rowOid(b) - rowOid(a));
   for (const row of rows.slice(0, 200)) {
@@ -591,6 +605,8 @@ function exportCsv() {
 async function autoRefresh() {
   if (document.visibilityState !== "visible" || state.timer || ui.applyButton.loading) return;
   const cadenceMs = Math.max(1, Number(state.config.refreshIntervalMinutes || 5)) * 60000;
+  const previousFromValue = ui.fromTime.value;
+  const previousToValue = ui.toTime.value;
   const { from, to } = windowBounds();
   const now = new Date();
   const duration = Math.max(60000, to.getTime() - from.getTime());
@@ -598,7 +614,12 @@ async function autoRefresh() {
   ui.fromTime.value = localInputValue(new Date(now.getTime() - duration));
   state.layers.source.refresh();
   state.layers.audit.refresh();
-  await refresh();
+  const refreshed = await refresh();
+  if (!refreshed) {
+    ui.fromTime.value = previousFromValue;
+    ui.toTime.value = previousToValue;
+    setPlayback(Number(ui.timeSlider.value));
+  }
   state.lastAutoRefresh = Date.now();
   return cadenceMs;
 }

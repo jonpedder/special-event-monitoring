@@ -50,7 +50,7 @@
           </div>
           <div class="button-row">
             <calcite-button id="applyButton" width="full" icon-start="filter">Apply</calcite-button>
-            <calcite-button id="playButton" width="full" appearance="outline" icon-start="play">Play</calcite-button>
+            <calcite-button id="playButton" width="full" appearance="outline" icon-start="play">Play all assets</calcite-button>
           </div>
           <calcite-label>Playback time
             <input id="timeSlider" type="range" min="0" max="100" value="100" />
@@ -60,6 +60,7 @@
           </calcite-label>
           <output id="speedLabel" aria-live="polite">1× speed</output>
           <output id="playbackLabel" aria-live="polite">—</output>
+          <output id="playbackScope" aria-live="polite">Playback scope: all filtered assets</output>
           <div class="movement-legend" aria-label="Movement arrow legend">
             <span><b class="arrow-origin">▲</b> Origin</span>
             <span><b class="arrow-destination">▲</b> Destination</span>
@@ -88,7 +89,7 @@
           <div class="section-label">Filtered assets</div>
         </div>
         <calcite-list id="assetList" label="Filtered audited assets" selection-mode="single-persist"></calcite-list>
-        <div id="assetSummary" class="panel-content muted">Select an asset to zoom to it and review its audited workflow.</div>
+        <div id="assetSummary" class="panel-content muted">Select an asset to zoom to it and play only its audited updates and movement.</div>
         <calcite-list id="timeline" label="Asset audit workflow"></calcite-list>
       </calcite-panel>
     </calcite-shell-panel>

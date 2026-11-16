@@ -5,8 +5,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
   refreshIntervalMinutes: 5,
   playbackSpeed: 1,
   basemap: "dark-gray-vector",
-  showMovementEndpoints: true,
-  autoNavigatePlayback: true
+  showMovementEndpoints: true
 });
 
 const BASEMAPS = new Set(["dark-gray-vector", "gray-vector", "streets-vector", "topo-vector", "satellite", "hybrid"]);
@@ -23,8 +22,7 @@ export function validateSettings(input = {}) {
     refreshIntervalMinutes: allowedNumber(source.refreshIntervalMinutes, REFRESH_INTERVALS, DEFAULT_SETTINGS.refreshIntervalMinutes),
     playbackSpeed: allowedNumber(source.playbackSpeed, PLAYBACK_SPEEDS, DEFAULT_SETTINGS.playbackSpeed),
     basemap: BASEMAPS.has(source.basemap) ? source.basemap : DEFAULT_SETTINGS.basemap,
-    showMovementEndpoints: allowedBoolean(source.showMovementEndpoints, DEFAULT_SETTINGS.showMovementEndpoints),
-    autoNavigatePlayback: allowedBoolean(source.autoNavigatePlayback, DEFAULT_SETTINGS.autoNavigatePlayback)
+    showMovementEndpoints: allowedBoolean(source.showMovementEndpoints, DEFAULT_SETTINGS.showMovementEndpoints)
   };
 }
 
