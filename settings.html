@@ -17,7 +17,7 @@
   <nav class="tabs" role="tablist" aria-label="Settings sections">
     <button id="configurationTab" class="tab" role="tab" aria-selected="true" aria-controls="configurationPanel">Configuration</button>
     <button id="helpTab" class="tab" role="tab" aria-selected="false" aria-controls="helpPanel">Help &amp; How-to</button>
-    <a id="demo-video-guide" class="tab external-tab" href="https://esriis-my.sharepoint.com/:v:/g/personal/jon7912_esri_com/IQAmVhWGGAXSSLIyYxVgGP8wAcdc-3Ax7R7-R_plRpiKVEQ?e=psbM1B" target="_blank" rel="noopener" aria-label="Demo Video - Esri Access; opens in a new browser tab">Demo Video - Esri Access ↗</a>
+    <a id="demoVideoTab" class="tab external-tab" href="https://esriis-my.sharepoint.com/:v:/g/personal/jon7912_esri_com/IQAmVhWGGAXSSLIyYxVgGP8wAcdc-3Ax7R7-R_plRpiKVEQ?e=psbM1B" target="_blank" rel="noopener" aria-label="Demo Video - Esri Access; opens in a new browser tab">Demo Video - Esri Access ↗</a>
   </nav>
   <main>
     <section id="configurationPanel" class="panel" role="tabpanel" aria-labelledby="configurationTab">
@@ -73,7 +73,7 @@
     const tabs=[$("configurationTab"),$("helpTab")]; tabs.forEach((tab,index)=>tab.onkeydown=event=>{let next=null;if(event.key==="ArrowRight")next=(index+1)%tabs.length;if(event.key==="ArrowLeft")next=(index-1+tabs.length)%tabs.length;if(event.key==="Home")next=0;if(event.key==="End")next=tabs.length-1;if(next!=null){event.preventDefault();selectTab(next===1);tabs[next].focus()}});
     document.querySelectorAll(".help-nav a").forEach(link=>link.onclick=()=>selectTab(true,false));
     const isHelpHash=hash=>Boolean(hash&&hash!=="#configuration"&&hash!=="#demo-video-guide"); window.addEventListener("hashchange",()=>selectTab(isHelpHash(location.hash),false));
-    render(); selectTab(isHelpHash(location.hash),false); updateClocks(); setInterval(updateClocks,1000); loadMapConfiguration();
+    render(); selectTab(isHelpHash(location.hash),false); if(location.hash==="#demo-video-guide")scrollTo({top:0}); updateClocks(); setInterval(updateClocks,1000); loadMapConfiguration();
   </script>
 </body>
 </html>
