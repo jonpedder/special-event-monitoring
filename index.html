@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Special Event Operations — Pedder</title>
   <link rel="stylesheet" href="https://js.arcgis.com/5.1/esri/themes/dark/main.css" />
-  <link rel="stylesheet" href="./styles.css?v=b3fa12e" />
+  <link rel="stylesheet" href="./styles.css?v=date-filter-1" />
   <script type="module" src="https://js.arcgis.com/5.1/"></script>
 </head>
 <body class="calcite-mode-dark">
@@ -45,7 +45,12 @@
           <calcite-label>Event
             <calcite-select id="eventSelect" label="Event"><calcite-option value="">All events</calcite-option></calcite-select>
           </calcite-label>
-          <div class="date-grid">
+          <label class="date-filter-toggle" for="dateFilterToggle">
+            <span><strong>Date filtering</strong><small>Limit audit history to the dates below</small></span>
+            <input id="dateFilterToggle" type="checkbox" role="switch" checked aria-label="Turn date filtering on or off" />
+            <span class="switch-track" aria-hidden="true"><span></span></span>
+          </label>
+          <div id="dateFilterFields" class="date-grid">
             <calcite-label>From<input id="fromTime" class="native-input" type="datetime-local" /></calcite-label>
             <calcite-label>To<input id="toTime" class="native-input" type="datetime-local" /></calcite-label>
           </div>
@@ -95,6 +100,6 @@
       </calcite-panel>
     </calcite-shell-panel>
   </calcite-shell>
-  <script type="module" src="./app.js"></script>
+  <script type="module" src="./app.js?v=date-filter-1"></script>
 </body>
 </html>

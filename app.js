@@ -1,7 +1,7 @@
 import { loadSettings } from "./settings.mjs";
 
 const ui = Object.fromEntries([
-  "eventSelect", "fromTime", "toTime", "applyButton", "playButton", "timeSlider", "speedSlider",
+  "eventSelect", "dateFilterToggle", "dateFilterFields", "fromTime", "toTime", "applyButton", "playButton", "timeSlider", "speedSlider",
   "speedLabel", "playbackLabel", "playbackScope", "exportButton", "notice", "refreshAction", "assetList", "timeline", "assetSummary", "resetExtentButton",
   "kpiAssets", "kpiAdds", "kpiMoves", "kpiDistance", "kpiDeletes", "authScreen", "authLoading", "signInButton", "authError", "appShell",
   "authFullName", "authUsername", "userIdentity", "utcTime", "pacificTime", "settingsAction", "signOutAction"
@@ -18,6 +18,7 @@ const state = {
   widgets: {},
   Graphic: null,
   auditRows: [],
+  activeWindow: null,
   timer: null,
   autoRefreshTimer: null,
   lastAutoRefresh: 0,
@@ -48,12 +49,40 @@ function localInputValue(date) {
   return shifted.toISOString().slice(0, 16);
 }
 
-function windowBounds() {
+function inputWindowBounds() {
   const from = new Date(ui.fromTime.value);
   const to = new Date(ui.toTime.value);
   if (!Number.isFinite(from.getTime()) || !Number.isFinite(to.getTime()) || from >= to) {
     throw new Error("Choose a valid time range with From earlier than To.");
   }
+  return { from, to };
+}
+
+function windowBounds() {
+  if (!ui.dateFilterToggle.checked && state.activeWindow) return state.activeWindow;
+  return inputWindowBounds();
+}
+
+function syncDateFilterControls() {
+  const enabled = ui.dateFilterToggle.checked;
+  ui.fromTime.disabled = !enabled;
+  ui.toTime.disabled = !enabled;
+  ui.dateFilterFields.classList.toggle("is-disabled", !enabled);
+  ui.dateFilterFields.setAttribute("aria-disabled", String(!enabled));
+}
+
+function fullHistoryBounds(rows) {
+  const times = rows.map(rowTime).filter((value) => Number.isFinite(value) && value > 0);
+  if (!times.length) {
+    const to = new Date();
+    return { from: new Date(to.getTime() - 3600000), to };
+  }
+  let min = times[0];
+  let max = times[0];
+  for (const value of times) { min = Math.min(min, value); max = Math.max(max, value); }
+  const from = new Date(min);
+  let to = new Date(max);
+  if (from.getTime() === to.getTime()) to = new Date(to.getTime() + 1000);
   return { from, to };
 }
 
@@ -392,6 +421,7 @@ async function initialize() {
   const now = new Date();
   ui.toTime.value = localInputValue(now);
   ui.fromTime.value = localInputValue(new Date(now.getTime() - state.config.playback.defaultWindowHours * 3600000));
+  syncDateFilterControls();
   bindEvents();
   await loadEvents();
   await refresh();
@@ -444,13 +474,23 @@ async function refresh() {
   ui.applyButton.loading = true;
   setNotice("Loading ordered audit history…");
   try {
-    const { from, to } = windowBounds();
+    const dateFiltering = ui.dateFilterToggle.checked;
+    let bounds = dateFiltering ? inputWindowBounds() : null;
     const q = state.layers.audit.createQuery();
-    q.where = `${eventClause()} AND ${field("changeTime")} <= TIMESTAMP '${timestampLiteral(to)}'`;
+    q.where = dateFiltering
+      ? `${eventClause()} AND ${field("changeTime")} <= TIMESTAMP '${timestampLiteral(bounds.to)}'`
+      : eventClause();
     q.outFields = ["*"];
     q.returnGeometry = true;
     const rows = sortedRows(await queryAll(state.layers.audit, q));
     if (token !== state.requestToken) return false;
+    if (!dateFiltering) {
+      bounds = fullHistoryBounds(rows);
+      ui.fromTime.value = localInputValue(bounds.from);
+      ui.toTime.value = localInputValue(bounds.to);
+    }
+    const { from, to } = bounds;
+    state.activeWindow = { from, to };
     state.auditRows = rows;
     ui.timeSlider.value = "100";
     drawAt(to);
@@ -458,7 +498,8 @@ async function refresh() {
     updateAssetList(from, to);
     const warning = movement.unavailable ? ` ${movement.unavailable} movement distances could not be calculated for the audit spatial reference.` : "";
     const cadence = Number(state.config.refreshIntervalMinutes || 5);
-    setNotice(`Loaded ${rows.length.toLocaleString()} audit records through the selected end time.${warning} Auto-refreshes every ${cadence} minutes.`, movement.unavailable ? "warning" : "success");
+    const scope = dateFiltering ? "through the selected end time" : "across all available dates";
+    setNotice(`Loaded ${rows.length.toLocaleString()} audit records ${scope}.${warning} Auto-refreshes every ${cadence} minutes.`, movement.unavailable ? "warning" : "success");
     return true;
   } catch (error) {
     console.error(error);
@@ -649,11 +690,13 @@ async function autoRefresh() {
   const cadenceMs = Math.max(1, Number(state.config.refreshIntervalMinutes || 5)) * 60000;
   const previousFromValue = ui.fromTime.value;
   const previousToValue = ui.toTime.value;
-  const { from, to } = windowBounds();
-  const now = new Date();
-  const duration = Math.max(60000, to.getTime() - from.getTime());
-  ui.toTime.value = localInputValue(now);
-  ui.fromTime.value = localInputValue(new Date(now.getTime() - duration));
+  if (ui.dateFilterToggle.checked) {
+    const { from, to } = windowBounds();
+    const now = new Date();
+    const duration = Math.max(60000, to.getTime() - from.getTime());
+    ui.toTime.value = localInputValue(now);
+    ui.fromTime.value = localInputValue(new Date(now.getTime() - duration));
+  }
   state.layers.source.refresh();
   state.layers.audit.refresh();
   const refreshed = await refresh();
@@ -685,6 +728,10 @@ function bindHeaderEvents() {
 }
 
 function bindEvents() {
+  ui.dateFilterToggle.addEventListener("change", () => {
+    syncDateFilterControls();
+    refresh();
+  });
   ui.applyButton.addEventListener("click", refresh);
   ui.refreshAction.addEventListener("click", refresh);
   ui.playButton.addEventListener("click", togglePlayback);
