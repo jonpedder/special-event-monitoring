@@ -67,6 +67,9 @@ calcite-navigation { min-height: 4.75rem; --calcite-color-foreground-1: var(--na
 .user-identity strong, .user-identity span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .user-identity strong { color: var(--text); font-size: .74rem; }
 .user-identity span { color: var(--muted); font-size: .65rem; }
+.solution-link { display: inline-flex; align-items: center; min-height: 2rem; padding: .42rem .7rem; border: 1px solid var(--gold); border-radius: 2px; color: var(--gold); font-size: .68rem; font-weight: 800; letter-spacing: .035em; text-decoration: none; text-transform: uppercase; white-space: nowrap; }
+.solution-link:hover { background: var(--gold); color: var(--bg); }
+.solution-link:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 calcite-shell-panel { border-color: var(--border); background: var(--panel); }
 calcite-panel { --calcite-color-foreground-1: var(--panel); --calcite-color-border-3: var(--border); }
 .workspace { display: grid; grid-template-rows: auto 1fr; min-width: 0; height: 100%; background: radial-gradient(circle at 48% -20%, #123247 0, var(--bg) 42%); }
