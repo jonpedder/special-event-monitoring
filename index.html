@@ -23,21 +23,21 @@
   </section>
 
   <calcite-shell id="appShell" hidden>
-    <calcite-navigation slot="header" aria-label="Application navigation">
-      <div class="brand-block" slot="logo">
-        <div class="brand-shield" aria-hidden="true"><svg viewBox="0 0 48 56"><path d="M24 3 42 10v15c0 13-8 22-18 28C14 47 6 38 6 25V10Z"/><path d="M16 27h16M24 16v22"/></svg></div>
-        <div><h1 tabindex="-1">Special Event Operations</h1><span>Pedder asset movement audit</span><small>Powered by ArcGIS Workflow Manager</small></div>
-      </div>
-      <div class="header-status" slot="content-end">
+    <header class="app-header" slot="header" aria-label="Application navigation">
+      <div class="brand-shield" aria-hidden="true"><svg viewBox="0 0 48 56"><path d="M24 3 42 10v15c0 13-8 22-18 28C14 47 6 38 6 25V10Z"/><path d="M16 27h16M24 16v22"/></svg></div>
+      <div class="header-brand"><h1 tabindex="-1">Special Event Operations</h1><p>Pedder asset movement audit</p><small>Powered by ArcGIS Workflow Manager</small></div>
+      <div class="mission"><strong>Special Event Situational Awareness</strong><span>Authenticated operational asset monitoring</span></div>
+      <div class="header-status">
         <div class="system-health"><span class="status-dot"></span><span>Audit monitoring active</span></div>
         <div class="clocks" aria-label="Current time"><span>UTC <strong id="utcTime">--:--:--</strong></span><span>Pacific <strong id="pacificTime">--:--:--</strong></span></div>
+        <span class="header-badge">SPECIAL EVENTS</span>
+        <a id="solutionEditorLink" class="header-button primary" href="https://experience.arcgis.com/experience/1480f39873f844099a163e1d64a0b816/" target="_blank" rel="noopener" title="Open Event Operations Planner to edit special event features">Edit special events</a>
         <div id="userIdentity" class="user-identity" aria-label="Authenticated ArcGIS user"><strong id="authFullName">Signed-in user</strong><span id="authUsername">Loading username…</span></div>
-        <a id="solutionEditorLink" class="solution-link" href="https://experience.arcgis.com/experience/1480f39873f844099a163e1d64a0b816/" target="_blank" rel="noopener" title="Open Event Operations Planner to edit special event features">Edit special events</a>
-        <calcite-action id="refreshAction" icon="refresh" text="Refresh" title="Refresh audit data"></calcite-action>
-        <calcite-action id="settingsAction" icon="gear" text="Settings" title="Settings and how-to"></calcite-action>
-        <calcite-action id="signOutAction" icon="sign-out" text="Sign out" title="Sign out"></calcite-action>
+        <button id="refreshAction" class="header-button icon-button" type="button" title="Refresh audit data" aria-label="Refresh audit data"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6v5h-5M4 18v-5h5"/><path d="M18.5 9A7 7 0 0 0 6.2 6.2L4 8m16 8-2.2 1.8A7 7 0 0 1 5.5 15"/></svg></button>
+        <button id="signOutAction" class="header-button" type="button" title="Sign out">Sign out</button>
+        <button id="settingsAction" class="header-button settings-button" type="button" title="Settings and how-to" aria-label="Settings and how-to"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.13.38.34.72.6 1 .3.27.68.4 1.1.4h.09v4h-.09c-.42 0-.8.13-1.1.4-.26.28-.47.62-.6 1.2Z"/></svg></button>
       </div>
-    </calcite-navigation>
+    </header>
 
     <calcite-shell-panel slot="panel-start" position="start" width-scale="m">
       <calcite-panel heading="Playback controls">
