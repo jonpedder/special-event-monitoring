@@ -176,7 +176,7 @@
       "showMovementEndpoints"
     ],
     "visualQaStatus": "signin_gate_and_settings_configuration_help_pages_verified_2026-11-15",
-    "latestCommit": "52bf825",
+    "latestCommit": "2117003",
     "playbackStatus": "stable_viewpoint_global_or_selected_asset_scope",
     "singleAssetPlayback": "select_asset_resets_slider_and_replays_only_its_updates_positions_and_trail",
     "webMapItemId": "6d26cea81f8e4568aa505920f06e5291",
@@ -199,11 +199,11 @@
       "label": "Demo Video - Esri Access",
       "url": "https://esriis-my.sharepoint.com/:v:/g/personal/jon7912_esri_com/IQAmVhWGGAXSSLIyYxVgGP8wAcdc-3Ax7R7-R_plRpiKVEQ?e=psbM1B",
       "locations": [
-        "authenticated header",
-        "Help & How-to"
+        "Settings external tab"
       ],
       "access": "Esri account required",
-      "opensInNewTab": true
+      "opensInNewTab": true,
+      "settingsAnchor": "https://jonpedder.github.io/special-event-monitoring/settings.html#demo-video-guide"
     }
   }
 }
