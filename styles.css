@@ -110,8 +110,14 @@ calcite-button:not([appearance="outline"]) { --calcite-color-brand: var(--gold);
 calcite-button[appearance="outline"] { --calcite-color-brand: var(--gold); }
 .esri-ui .esri-widget, .esri-ui .esri-widget--button { background: var(--panel); color: var(--text); }
 .esri-ui .esri-widget--button:hover { background: var(--panel2); color: var(--gold); }
+@media (max-width: 1450px) {
+  .system-health { display: none; }
+}
+@media (max-width: 1200px) {
+  .mission { display: none; }
+}
 @media (max-width: 1100px) {
-  .mission, .system-health, .clocks { display: none; }
+  .clocks { display: none; }
 }
 @media (max-width: 900px) {
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
