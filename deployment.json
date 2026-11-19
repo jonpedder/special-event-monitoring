@@ -176,7 +176,7 @@
       "showMovementEndpoints"
     ],
     "visualQaStatus": "signin_gate_and_settings_configuration_help_pages_verified_2026-11-15",
-    "latestCommit": "2117003",
+    "latestCommit": "5f37556",
     "playbackStatus": "stable_viewpoint_global_or_selected_asset_scope",
     "singleAssetPlayback": "select_asset_resets_slider_and_replays_only_its_updates_positions_and_trail",
     "webMapItemId": "6d26cea81f8e4568aa505920f06e5291",
@@ -203,7 +203,8 @@
       ],
       "access": "Esri account required",
       "opensInNewTab": true,
-      "settingsAnchor": "https://jonpedder.github.io/special-event-monitoring/settings.html#demo-video-guide"
+      "settingsAnchor": "https://jonpedder.github.io/special-event-monitoring/settings.html#demo-video-guide",
+      "presentation": "settings external tab matching Search and Rescue; demo-video-guide route opens settings at top"
     }
   }
 }
