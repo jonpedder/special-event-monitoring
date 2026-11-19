@@ -176,7 +176,7 @@
       "showMovementEndpoints"
     ],
     "visualQaStatus": "signin_gate_and_settings_configuration_help_pages_verified_2026-11-15",
-    "latestCommit": "f5fb8e7",
+    "latestCommit": "52bf825",
     "playbackStatus": "stable_viewpoint_global_or_selected_asset_scope",
     "singleAssetPlayback": "select_asset_resets_slider_and_replays_only_its_updates_positions_and_trail",
     "webMapItemId": "6d26cea81f8e4568aa505920f06e5291",
@@ -193,6 +193,16 @@
       "title": "Event Operations Planner",
       "url": "https://experience.arcgis.com/experience/1480f39873f844099a163e1d64a0b816/",
       "headerLink": "Edit special events",
+      "opensInNewTab": true
+    },
+    "demoVideo": {
+      "label": "Demo Video - Esri Access",
+      "url": "https://esriis-my.sharepoint.com/:v:/g/personal/jon7912_esri_com/IQAmVhWGGAXSSLIyYxVgGP8wAcdc-3Ax7R7-R_plRpiKVEQ?e=psbM1B",
+      "locations": [
+        "authenticated header",
+        "Help & How-to"
+      ],
+      "access": "Esri account required",
       "opensInNewTab": true
     }
   }
