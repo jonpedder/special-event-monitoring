@@ -176,7 +176,7 @@
       "showMovementEndpoints"
     ],
     "visualQaStatus": "signin_gate_and_settings_configuration_help_pages_verified_2026-11-15",
-    "latestCommit": "d037ae7",
+    "latestCommit": "183b133",
     "playbackStatus": "stable_viewpoint_global_or_selected_asset_scope",
     "singleAssetPlayback": "select_asset_resets_slider_and_replays_only_its_updates_positions_and_trail",
     "webMapItemId": "6d26cea81f8e4568aa505920f06e5291",
@@ -206,6 +206,7 @@
       "settingsAnchor": "https://jonpedder.github.io/special-event-monitoring/settings.html#demo-video-guide",
       "presentation": "settings external tab matching Search and Rescue; demo-video-guide route opens settings at top"
     },
-    "headerStyle": "CA Security Ops command-center header with mission, health, clocks, badge, user controls, and dedicated settings button"
+    "headerStyle": "CA Security Ops command-center header with mission, health, clocks, badge, user controls, and dedicated settings button",
+    "dateFiltering": "Small on/off slider above From and To; off loads all available audit dates and derives playback bounds from history"
   }
 }
